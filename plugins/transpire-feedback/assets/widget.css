@@ -1,0 +1,288 @@
+/* Transpire Feedback widgets. Everything is scoped to .tspr-fb, and button
+   styles are spelled out in full because themes restyle bare buttons. */
+
+.tspr-fb {
+  --tspr-fb-mint: #E7F4F0;
+  --tspr-fb-line: #C8E3D8;
+  --tspr-fb-green: #4A6A3A;
+  --tspr-fb-green-deep: #3A5530;
+  --tspr-fb-ink: #2F2C33;
+  --tspr-fb-soft: #404249;
+  --tspr-fb-muted: #5F636A;
+  --tspr-fb-pink: #C2376B;
+
+  box-sizing: border-box;
+  max-width: 640px;
+  margin: 0 auto 32px;
+  padding: 24px 20px 20px;
+  background: var(--tspr-fb-mint);
+  border: 2px solid var(--tspr-fb-green);
+  border-radius: 6px;
+  color: var(--tspr-fb-ink);
+  font-size: 16px;
+  line-height: 1.5;
+  text-align: left;
+}
+.tspr-fb *,
+.tspr-fb *::before,
+.tspr-fb *::after { box-sizing: border-box; }
+
+.tspr-fb p { margin: 0 0 12px; }
+
+.tspr-fb .tspr-fb-eyebrow {
+  margin: 0 0 4px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--tspr-fb-green);
+}
+.tspr-fb .tspr-fb-title {
+  margin: 0 0 14px;
+  font-size: 24px;
+  line-height: 1.2;
+  font-weight: 700;
+  color: var(--tspr-fb-green-deep);
+}
+.tspr-fb .tspr-fb-message { color: var(--tspr-fb-soft); }
+.tspr-fb .tspr-fb-note,
+.tspr-fb .tspr-fb-hint { font-size: 13px; color: var(--tspr-fb-muted); }
+.tspr-fb .tspr-fb-note { margin: 14px 0 0; }
+.tspr-fb .tspr-fb-test {
+  padding: 8px 12px;
+  background: #fff;
+  border-left: 4px solid var(--tspr-fb-pink);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* Status pill */
+.tspr-fb .tspr-fb-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 12px;
+  padding: 4px 12px;
+  background: #fff;
+  border: 1px solid var(--tspr-fb-line);
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--tspr-fb-soft);
+}
+.tspr-fb .tspr-fb-pill::before {
+  content: '';
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #9AA0A6;
+}
+.tspr-fb .tspr-fb-pill.is-open::before {
+  background: #2E8B2E;
+  animation: tspr-fb-pulse 1.8s ease-in-out infinite;
+}
+@keyframes tspr-fb-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(46, 139, 46, 0.5); }
+  50% { box-shadow: 0 0 0 6px rgba(46, 139, 46, 0); }
+}
+
+/* Reaction buttons */
+.tspr-fb .tspr-fb-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+@media (min-width: 520px) {
+  .tspr-fb .tspr-fb-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+.tspr-fb button.tspr-fb-btn {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  min-height: 96px;
+  margin: 0;
+  padding: 12px 8px;
+  background: #fff;
+  border: 2px solid var(--tspr-fb-line);
+  border-radius: 10px;
+  box-shadow: none;
+  color: var(--tspr-fb-ink);
+  font: inherit;
+  letter-spacing: 0;
+  text-transform: none;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.12s ease, border-color 0.15s ease, opacity 0.15s ease;
+}
+.tspr-fb button.tspr-fb-btn:hover,
+.tspr-fb button.tspr-fb-btn:focus {
+  background: #fff;
+  border-color: var(--tspr-fb-green);
+  color: var(--tspr-fb-ink);
+}
+.tspr-fb button.tspr-fb-btn:active { transform: scale(0.96); }
+.tspr-fb button.tspr-fb-btn:disabled {
+  background: #fff;
+  color: var(--tspr-fb-ink);
+  opacity: 0.55;
+  cursor: default;
+}
+.tspr-fb .tspr-fb-emoji { font-size: 34px; line-height: 1; }
+.tspr-fb .tspr-fb-label { font-size: 14px; font-weight: 600; line-height: 1.25; text-align: center; }
+
+.tspr-fb .tspr-fb-float {
+  position: absolute;
+  left: 50%;
+  top: 14px;
+  font-size: 34px;
+  line-height: 1;
+  pointer-events: none;
+  animation: tspr-fb-rise 0.8s ease-out forwards;
+}
+@keyframes tspr-fb-rise {
+  from { transform: translate(-50%, 0) scale(1); opacity: 0.9; }
+  to { transform: translate(-50%, -64px) scale(1.5); opacity: 0; }
+}
+
+/* Thin bar that drains while the buttons rest between taps */
+.tspr-fb .tspr-fb-cool {
+  height: 4px;
+  margin: 12px 0 8px;
+  background: var(--tspr-fb-line);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.tspr-fb .tspr-fb-cool span {
+  display: block;
+  width: 0;
+  height: 100%;
+  background: var(--tspr-fb-green);
+}
+.tspr-fb .tspr-fb-cool.is-running span {
+  animation: tspr-fb-drain var(--tspr-fb-cool, 3s) linear forwards;
+}
+@keyframes tspr-fb-drain {
+  from { width: 100%; }
+  to { width: 0; }
+}
+
+.tspr-fb .tspr-fb-live { min-height: 24px; margin: 0; font-size: 14px; font-weight: 600; color: var(--tspr-fb-green-deep); }
+.tspr-fb .tspr-fb-tally { min-height: 20px; margin: 0; font-size: 13px; color: var(--tspr-fb-muted); }
+.tspr-fb a.tspr-fb-link { color: var(--tspr-fb-green-deep); font-weight: 700; text-decoration: underline; }
+
+/* Feedback form */
+.tspr-fb .tspr-fb-field { margin: 0 0 18px; padding: 0; border: 0; min-width: 0; }
+.tspr-fb .tspr-fb-q {
+  display: block;
+  width: 100%;
+  margin: 0 0 6px;
+  padding: 0;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.35;
+  color: var(--tspr-fb-ink);
+}
+.tspr-fb .tspr-fb-hint { margin: 0 0 8px; }
+.tspr-fb .tspr-fb-form textarea,
+.tspr-fb .tspr-fb-form select,
+.tspr-fb .tspr-fb-form input[type="email"] {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  padding: 10px 12px;
+  background: #fff;
+  border: 2px solid var(--tspr-fb-line);
+  border-radius: 6px;
+  color: var(--tspr-fb-ink);
+  font: inherit;
+  font-size: 16px; /* 16px stops iOS from zooming the page on focus */
+  line-height: 1.4;
+}
+.tspr-fb .tspr-fb-form textarea { min-height: 104px; resize: vertical; }
+.tspr-fb .tspr-fb-form select { height: auto; }
+.tspr-fb .tspr-fb-form textarea:focus,
+.tspr-fb .tspr-fb-form select:focus,
+.tspr-fb .tspr-fb-form input[type="email"]:focus { border-color: var(--tspr-fb-green); }
+
+.tspr-fb .tspr-fb-scale { display: flex; gap: 8px; }
+.tspr-fb .tspr-fb-scale-item { position: relative; flex: 1 1 0; margin: 0; cursor: pointer; }
+.tspr-fb .tspr-fb-scale-item input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+.tspr-fb .tspr-fb-scale-item span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  background: #fff;
+  border: 2px solid var(--tspr-fb-line);
+  border-radius: 6px;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--tspr-fb-ink);
+}
+.tspr-fb .tspr-fb-scale-item input:checked + span {
+  background: var(--tspr-fb-green-deep);
+  border-color: var(--tspr-fb-green-deep);
+  color: #fff;
+}
+
+.tspr-fb button.tspr-fb-submit {
+  display: block;
+  width: 100%;
+  min-height: 52px;
+  margin: 4px 0 0;
+  padding: 12px 20px;
+  background: var(--tspr-fb-green-deep);
+  border: 2px solid var(--tspr-fb-green-deep);
+  border-radius: 6px;
+  box-shadow: none;
+  color: #fff;
+  font: inherit;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  cursor: pointer;
+}
+.tspr-fb button.tspr-fb-submit:hover,
+.tspr-fb button.tspr-fb-submit:focus { background: var(--tspr-fb-green); border-color: var(--tspr-fb-green); color: #fff; }
+.tspr-fb button.tspr-fb-submit:disabled { opacity: 0.6; cursor: default; }
+
+.tspr-fb .tspr-fb-trap {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+/* One visible focus style for every control */
+.tspr-fb button:focus-visible,
+.tspr-fb a:focus-visible,
+.tspr-fb textarea:focus-visible,
+.tspr-fb select:focus-visible,
+.tspr-fb input[type="email"]:focus-visible,
+.tspr-fb .tspr-fb-scale-item input:focus-visible + span {
+  outline: 3px solid var(--tspr-fb-pink);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tspr-fb .tspr-fb-float { display: none; }
+  .tspr-fb .tspr-fb-pill.is-open::before { animation: none; }
+  .tspr-fb .tspr-fb-cool.is-running span { animation: none; width: 100%; }
+  .tspr-fb button.tspr-fb-btn { transition: none; }
+}

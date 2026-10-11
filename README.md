@@ -37,3 +37,29 @@ Which code goes in which block:
 
 - **Home** has four Custom HTML blocks, in this order: the hero (starts at `<div class="transpire-hero">`), the event section (`<div class="transpire-event"`), the about section (`<div class="transpire-about">`), and the drop-off network map (from the `TRANSPIRE DROP-OFF NETWORK MAP` comment to the end of the file).
 - **Volunteer Hub** has one Custom HTML block. It holds everything from the `TRANSPIRE VOLUNTEER HUB v3` comment to the end of the file. The three lines above that comment are the Spectra banner and stay out of the paste.
+
+## Transpire Feedback plugin
+
+[plugins/transpire-feedback/](plugins/transpire-feedback/) is a WordPress plugin for Transpire listening sessions. Unlike the pages above, it is real code that runs on the site: these files are the plugin.
+
+It gives the audience two things, each placed on a page with a Shortcode block:
+
+- `[transpire_reactions]` shows emoji buttons to tap during the session. Each tap is saved with its time. The buttons open and close by themselves at the session's start and end.
+- `[transpire_feedback]` shows a written feedback form. It opens when the session starts and stays open for 14 days after it ends.
+
+Organizers see the results in WP Admin under **Transpire Feedback → Results**: reactions over time for each emoji, the written feedback, and CSV downloads of both. The audience never sees anyone else's reactions.
+
+Reactions and feedback are anonymous. No names, IP addresses or browser details are stored. Each device gets a random id, kept only as a scrambled code, so the plugin can pace taps and count devices. An email address is stored only if someone chooses to type one into the form.
+
+### Installing or updating it
+
+1. Zip the `transpire-feedback` folder.
+2. In WP Admin, go to Plugins → Add Plugin → Upload Plugin, choose the zip, then Install and Activate. To update, upload the new zip the same way and choose to replace the current version.
+
+With Advanced File Manager instead: upload the zip into `public_html/wp-content/plugins/`, extract it there, then activate **Transpire Feedback** under Plugins.
+
+Results live in two database tables, `wp_transpire_reactions` and `wp_transpire_feedback` (with the site's own table prefix). Deactivating or deleting the plugin leaves them in place.
+
+### Settings
+
+**Transpire Feedback → Settings** holds the session name, its start and end times and timezone, the list of reaction buttons, the feedback questions, and test mode. Test mode opens both widgets before the session so they can be tried; whatever is sent then is kept apart as test data and can be deleted from the Results screen.

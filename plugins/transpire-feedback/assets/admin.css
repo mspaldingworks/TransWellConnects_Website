@@ -1,0 +1,121 @@
+/* Transpire Feedback: WP Admin results and settings screens. */
+
+.tspr-admin {
+  --tspr-ink: #1d2327;
+  --tspr-ink-2: #50575e;
+  --tspr-muted: #787c82;
+  --tspr-grid: #e1e0d9;
+  --tspr-axis: #c3c2b7;
+  --tspr-mark: #008300;
+  --tspr-name: 220px;
+}
+
+.tspr-admin .tspr-lede { max-width: 900px; font-size: 14px; color: var(--tspr-ink-2); }
+
+.tspr-admin .tspr-card {
+  box-sizing: border-box;
+  max-width: 1042px;
+  margin: 16px 0;
+  padding: 16px 20px 20px;
+  background: #fff;
+  border: 1px solid #dcdcde;
+  border-radius: 4px;
+}
+.tspr-admin .tspr-card h2 { margin: 0 0 8px; font-size: 16px; }
+.tspr-admin .tspr-card-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
+.tspr-admin .tspr-card-head h2 { margin: 0; }
+.tspr-admin .tspr-empty { margin: 8px 0 0; color: var(--tspr-ink-2); }
+
+.tspr-admin .tspr-filters { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; margin: 12px 0 16px; }
+.tspr-admin .tspr-filters select { margin-left: 6px; }
+
+/* Headline numbers */
+.tspr-admin .tspr-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; max-width: 1042px; }
+.tspr-admin .tspr-tile {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 14px 16px;
+  background: #fff;
+  border: 1px solid #dcdcde;
+  border-radius: 4px;
+}
+.tspr-admin .tspr-tile-label { font-size: 12px; color: var(--tspr-ink-2); }
+.tspr-admin .tspr-tile-value { font-size: 24px; font-weight: 600; line-height: 1.25; color: var(--tspr-ink); }
+.tspr-admin .tspr-tile-sub { font-size: 12px; color: var(--tspr-muted); }
+
+/* Timeline: one plot per reaction, all on one time axis */
+.tspr-admin .tspr-scroll { overflow-x: auto; }
+.tspr-admin .tspr-chart { position: relative; width: calc(var(--tspr-name) + 720px); padding-bottom: 4px; }
+.tspr-admin .tspr-chart-row { display: flex; align-items: flex-end; }
+.tspr-admin .tspr-chart-name {
+  flex: 0 0 var(--tspr-name);
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 0 14px 3px 0;
+  font-size: 13px;
+  color: var(--tspr-ink);
+}
+.tspr-admin .tspr-chart-all .tspr-chart-name { flex-direction: column; gap: 0; align-items: flex-start; }
+.tspr-admin .tspr-chart-sub { font-size: 12px; color: var(--tspr-muted); }
+.tspr-admin .tspr-chart-emoji { flex: 0 0 22px; font-size: 16px; }
+.tspr-admin .tspr-chart-label { flex: 1 1 auto; }
+.tspr-admin .tspr-chart-total { font-variant-numeric: tabular-nums; font-weight: 600; }
+.tspr-admin .tspr-chart-caption { margin: 18px 0 2px; font-size: 12px; color: var(--tspr-ink-2); }
+
+.tspr-admin .tspr-plot { display: block; flex: 0 0 720px; overflow: visible; }
+.tspr-admin .tspr-plot-bars { fill: var(--tspr-mark); }
+.tspr-admin .tspr-plot-grid { stroke: var(--tspr-grid); stroke-width: 1; shape-rendering: crispEdges; }
+.tspr-admin .tspr-plot-base { stroke: var(--tspr-axis); stroke-width: 1; shape-rendering: crispEdges; }
+.tspr-admin .tspr-plot-tick { fill: var(--tspr-muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+.tspr-admin .tspr-plot-peak { fill: var(--tspr-ink-2); font-size: 11px; font-weight: 600; }
+
+/* Hover: a band marks the same moment on every row, and one tooltip lists every reaction */
+.tspr-admin .tspr-chart-band {
+  position: absolute;
+  top: 0;
+  bottom: 26px;
+  background: rgba(0, 131, 0, 0.1);
+  pointer-events: none;
+}
+.tspr-admin .tspr-chart-tip {
+  position: absolute;
+  z-index: 5;
+  min-width: 190px;
+  padding: 10px 12px;
+  background: #fff;
+  border: 1px solid #c3c4c7;
+  border-radius: 4px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+  font-size: 12px;
+  color: var(--tspr-ink-2);
+  pointer-events: none;
+}
+.tspr-admin .tspr-chart-tip strong { display: block; margin-bottom: 6px; font-size: 13px; color: var(--tspr-ink); }
+.tspr-admin .tspr-tip-row { display: flex; justify-content: space-between; gap: 16px; line-height: 1.7; }
+.tspr-admin .tspr-tip-row b { color: var(--tspr-ink); font-variant-numeric: tabular-nums; }
+.tspr-admin .tspr-tip-row.is-zero { color: var(--tspr-muted); }
+.tspr-admin .tspr-tip-row.is-zero b { color: var(--tspr-muted); font-weight: 400; }
+.tspr-admin .tspr-tip-total { margin-top: 4px; padding-top: 4px; border-top: 1px solid var(--tspr-grid); }
+
+/* Tables */
+.tspr-admin .tspr-details { margin-top: 14px; }
+.tspr-admin .tspr-details summary { cursor: pointer; color: #2271b1; }
+.tspr-admin .tspr-table { margin-top: 10px; }
+.tspr-admin .tspr-num { text-align: right; font-variant-numeric: tabular-nums; }
+.tspr-admin .tspr-feedback td { vertical-align: top; }
+.tspr-admin .tspr-answer { margin: 0 0 10px; }
+.tspr-admin .tspr-answer:last-child { margin-bottom: 0; }
+
+/* Ratings given: one row per score */
+.tspr-admin .tspr-spread { margin: 0 0 18px; border-collapse: collapse; }
+.tspr-admin .tspr-spread caption { padding-bottom: 6px; text-align: left; font-size: 12px; color: var(--tspr-ink-2); }
+.tspr-admin .tspr-spread th { width: 20px; padding: 3px 8px 3px 0; font-weight: 600; text-align: right; }
+.tspr-admin .tspr-spread td { padding: 3px 0; }
+.tspr-admin .tspr-spread-bar { width: 260px; border-left: 1px solid var(--tspr-axis); }
+.tspr-admin .tspr-spread-bar span { display: block; height: 14px; min-width: 0; background: var(--tspr-mark); border-radius: 0 4px 4px 0; }
+.tspr-admin .tspr-spread .tspr-num { padding-left: 10px; }
+
+.tspr-admin .tspr-danger { margin: 8px 0 24px; }

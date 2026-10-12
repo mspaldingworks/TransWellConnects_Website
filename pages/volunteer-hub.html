@@ -1,0 +1,817 @@
+<div class="wp-block-uagb-container uagb-block-8de9c239 alignfull uagb-is-root-container"><div class="uagb-container-inner-blocks-wrap">
+<div class="wp-block-uagb-advanced-heading uagb-block-99148d6e"><h1 class="uagb-heading-text">Volunteer Hub</h1></div>
+</div></div>
+
+
+
+<!--
+  TRANSPIRE VOLUNTEER HUB v3 — for transwellconnects.com
+  ============================================================
+  WHAT CHANGED FROM v2:
+  - In-page shift sign-up is RETIRED. Sign-up now happens in the
+    LGL form (see LGL_form_framework.md for the fields to add).
+  - The page is now organized around CHURCH CARDS: visitors find
+    their congregation and click "Volunteer with us." Each click
+    is tagged to that congregation via the VPS API, then the LGL
+    form opens. If the API is down, the form still opens.
+  - Shift schedule remains as READ-ONLY reference so people know
+    what they're signing up for before they hit the form.
+
+  REQUIRES transpire_api.py (v3) on the VPS for click tracking.
+  The page works fine without it — you just lose the stats.
+
+  Editable blocks:
+    // API URL //        — your VPS endpoint
+    // LGL FORM URL //   — the volunteer form
+    // EDIT CHURCHES //  — the 12 congregation cards (one array)
+    // EDIT SHIFTS //    — read-only schedule reference
+    // EDIT DOWNLOADS // — flyer assets
+    // EDIT CONTACTS //  — people
+  ============================================================
+-->
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,700;9..144,800&#038;family=Montserrat:wght@300;400;500;600;700;800&#038;display=swap" rel="stylesheet">
+
+<div class="tspr-volunteers">
+
+  <style>
+    .tspr-volunteers {
+      --tspr-mint: #E7F4F0;
+      --tspr-mint-soft: #F2F8F5;
+      --tspr-mint-deep: #C8E3D8;
+      --tspr-line: #D4E3DC;
+      --tspr-green: #4A6A3A;
+      --tspr-green-deep: #3A5530;
+      --tspr-green-bright: #7FA05A;
+      --tspr-ink: #2F2C33;
+      --tspr-ink-soft: #404249;
+      --tspr-muted: #7D8189;
+      --tspr-flag-pink: #F482B6;
+      --tspr-flag-pink-deep: #DD5888;
+      --tspr-flag-blue: #5BCEFA;
+      --tspr-gold: #EBD235;
+
+      font-family: 'Montserrat', system-ui, -apple-system, sans-serif;
+      color: var(--tspr-ink);
+      background: var(--tspr-mint);
+      line-height: 1.6;
+      padding: 56px 32px 80px;
+      box-sizing: border-box;
+      max-width: 1200px;
+      margin: 0 auto;
+      font-weight: 400;
+    }
+    .tspr-volunteers *, .tspr-volunteers *::before, .tspr-volunteers *::after { box-sizing: border-box; }
+
+    /* ================ HERO ================ */
+    .tspr-hero {
+      display: grid; grid-template-columns: 1.4fr 1fr; gap: 56px; align-items: end;
+      margin-bottom: 64px; padding-bottom: 48px; border-bottom: 2px solid var(--tspr-green);
+    }
+    @media (max-width: 860px) { .tspr-hero { grid-template-columns: 1fr; gap: 32px; } }
+
+    .tspr-eyebrow {
+      font-size: 12px; letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--tspr-green); font-weight: 700; margin: 0 0 18px 0;
+      display: inline-flex; align-items: center; gap: 12px;
+    }
+    .tspr-eyebrow::before { content: ''; width: 28px; height: 2px; background: var(--tspr-green); }
+
+    .tspr-hero h1 {
+      font-family: 'Fraunces', Georgia, serif;
+      font-size: clamp(36px, 5.2vw, 62px); line-height: 1.02; letter-spacing: -0.025em;
+      color: var(--tspr-green-deep); margin: 0 0 20px 0; font-weight: 700;
+      font-variation-settings: "opsz" 144;
+    }
+    .tspr-hero h1 em { font-style: italic; color: var(--tspr-flag-pink-deep); font-weight: 500; }
+    .tspr-hero .lede { font-size: 17px; color: var(--tspr-ink-soft); max-width: 540px; margin: 0 0 28px 0; }
+
+    .tspr-ctarow { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; }
+    .tspr-btn {
+      display: inline-flex; align-items: center; gap: 10px; padding: 16px 28px;
+      font-family: 'Montserrat', sans-serif; font-size: 13px; letter-spacing: 0.12em;
+      text-transform: uppercase; font-weight: 700; text-decoration: none;
+      border-radius: 2px; cursor: pointer; border: 2px solid transparent;
+      transition: transform 0.15s ease, background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .tspr-btn-primary { background: var(--tspr-flag-pink-deep); color: #fff; box-shadow: 0 4px 0 var(--tspr-green-deep); }
+    .tspr-btn-primary:hover { transform: translate(-2px, -2px); box-shadow: 0 6px 0 var(--tspr-green-deep); background: var(--tspr-flag-pink); }
+    .tspr-btn-secondary { background: transparent; color: var(--tspr-green-deep); border-color: var(--tspr-green); }
+    .tspr-btn-secondary:hover { background: var(--tspr-green); color: #fff; }
+    .tspr-btn svg { width: 16px; height: 16px; }
+
+    .tspr-eventcard {
+      background: #fff; border: 2px solid var(--tspr-green); padding: 30px 28px;
+      border-radius: 4px; position: relative; box-shadow: 6px 6px 0 var(--tspr-flag-pink-deep);
+    }
+    .tspr-eventcard::before {
+      content: 'JUNE 28'; position: absolute; top: -12px; left: 24px;
+      background: var(--tspr-mint); color: var(--tspr-flag-pink-deep);
+      font-size: 11px; font-weight: 800; letter-spacing: 0.18em; padding: 0 10px;
+    }
+    .tspr-eventcard .date { font-family: 'Fraunces', Georgia, serif; font-size: 36px; line-height: 1; color: var(--tspr-green-deep); font-weight: 700; margin: 0 0 4px 0; }
+    .tspr-eventcard .time { font-size: 16px; color: var(--tspr-ink-soft); font-weight: 600; margin: 0 0 18px 0; }
+    .tspr-eventcard hr { border: none; border-top: 1px solid var(--tspr-line); margin: 0 0 18px 0; }
+    .tspr-eventcard .venue { font-size: 14px; color: var(--tspr-ink-soft); line-height: 1.55; margin: 0; }
+    .tspr-eventcard .venue strong { color: var(--tspr-green); font-weight: 700; display: block; font-size: 15px; margin-bottom: 4px; }
+
+    /* ================ SECTION SCAFFOLD ================ */
+    .tspr-section { margin-bottom: 72px; }
+    .tspr-section-head {
+      margin-bottom: 24px; padding-bottom: 14px; border-bottom: 2px solid var(--tspr-green);
+      display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 16px;
+    }
+    .tspr-section-title {
+      font-family: 'Fraunces', Georgia, serif; font-size: clamp(26px, 3.2vw, 36px);
+      color: var(--tspr-green-deep); margin: 0; font-weight: 700; letter-spacing: -0.015em; line-height: 1.1;
+    }
+    .tspr-section-num { font-family: 'Fraunces', serif; font-style: italic; font-size: 14px; color: var(--tspr-flag-pink-deep); font-weight: 500; }
+    .tspr-section-intro { font-size: 15px; color: var(--tspr-ink-soft); max-width: 680px; margin: 0 0 28px 0; }
+
+    /* ================ HOW IT WORKS ================ */
+    .tspr-steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+    @media (max-width: 760px) { .tspr-steps { grid-template-columns: 1fr; } }
+    .tspr-step {
+      background: #fff; border: 2px solid var(--tspr-line); border-radius: 4px; padding: 22px 20px;
+      display: grid; grid-template-columns: 44px 1fr; gap: 16px; align-items: start;
+    }
+    .tspr-step-num {
+      width: 44px; height: 44px; border-radius: 50%; background: var(--tspr-mint-deep);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Fraunces', serif; font-style: italic; font-size: 20px; color: var(--tspr-green-deep); font-weight: 700;
+    }
+    .tspr-step h3 { font-family: 'Fraunces', serif; font-size: 17px; color: var(--tspr-green-deep); margin: 0 0 4px; font-weight: 700; }
+    .tspr-step p { font-size: 13px; color: var(--tspr-ink-soft); margin: 0; line-height: 1.55; }
+
+    /* ================ CHURCH FILTER CHIPS ================ */
+    .tspr-chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 22px; }
+    .tspr-chip {
+      font-family: 'Montserrat', sans-serif; font-size: 11.5px; letter-spacing: 0.1em;
+      text-transform: uppercase; font-weight: 700; cursor: pointer;
+      background: #fff; color: var(--tspr-ink-soft); border: 2px solid var(--tspr-line);
+      border-radius: 20px; padding: 8px 16px; transition: all 0.18s ease;
+    }
+    .tspr-chip:hover { border-color: var(--tspr-green); color: var(--tspr-green-deep); }
+    .tspr-chip.is-on { background: var(--tspr-green-deep); border-color: var(--tspr-green-deep); color: #fff; }
+
+    /* ================ CHURCH CARDS (the heart of v3) ================ */
+    .tspr-churches { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 16px; }
+    @media (max-width: 960px) { .tspr-churches { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 600px) { .tspr-churches { grid-template-columns: 1fr; } }
+
+    .tspr-church {
+      background: #fff; border: 2px solid var(--tspr-line); border-radius: 4px;
+      padding: 22px 22px 18px; position: relative; display: flex; flex-direction: column; gap: 10px;
+      transition: border-color 0.2s ease, transform 0.18s ease, box-shadow 0.18s ease;
+    }
+    .tspr-church:hover { border-color: var(--tspr-green); transform: translateY(-3px); box-shadow: 0 8px 20px rgba(47,44,51,0.09); }
+    .tspr-church::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; border-radius: 4px 4px 0 0; }
+    .tspr-church.venue::before     { background: var(--tspr-flag-pink-deep); }
+    .tspr-church.dropoff::before   { background: var(--tspr-green); }
+    .tspr-church.partner::before   { background: var(--tspr-flag-blue); }
+    .tspr-church.tentative::before { background: var(--tspr-gold); }
+
+    .tspr-church-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 2px; }
+    .tspr-church-tag {
+      display: inline-block; font-size: 9.5px; letter-spacing: 0.13em; text-transform: uppercase;
+      padding: 3px 9px; font-weight: 800; color: #fff; border-radius: 2px;
+    }
+    .tspr-church-tag.venue     { background: var(--tspr-flag-pink-deep); }
+    .tspr-church-tag.dropoff   { background: var(--tspr-green); }
+    .tspr-church-tag.partner   { background: var(--tspr-flag-blue); color: var(--tspr-ink); }
+    .tspr-church-tag.tentative { background: var(--tspr-gold); color: var(--tspr-ink); }
+
+    .tspr-church-name { font-family: 'Fraunces', serif; font-size: 18px; color: var(--tspr-green-deep); margin: 0; font-weight: 700; line-height: 1.2; }
+    .tspr-church-addr { font-size: 12px; color: var(--tspr-muted); font-style: italic; margin: 0; line-height: 1.45; }
+    .tspr-church-note { font-size: 12.5px; color: var(--tspr-ink-soft); margin: 0; line-height: 1.5; }
+    .tspr-church-contact {
+      font-size: 12.5px; color: var(--tspr-ink-soft); margin: 0; padding-top: 10px;
+      border-top: 1px dashed var(--tspr-line); line-height: 1.5;
+    }
+    .tspr-church-contact strong { color: var(--tspr-green); font-weight: 700; }
+
+    .tspr-church-cta {
+      margin-top: auto; padding-top: 14px;
+    }
+    .tspr-church-btn {
+      width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      font-family: 'Montserrat', sans-serif; font-size: 11.5px; letter-spacing: 0.12em;
+      text-transform: uppercase; font-weight: 800; cursor: pointer;
+      background: var(--tspr-green-deep); color: #fff; border: none; border-radius: 3px;
+      padding: 13px 16px; transition: background 0.2s ease, transform 0.12s ease;
+    }
+    .tspr-church-btn:hover { background: var(--tspr-flag-pink-deep); transform: translateY(-1px); }
+    .tspr-church-btn svg { width: 14px; height: 14px; }
+
+    /* "No congregation" card */
+    .tspr-church.everyone { background: var(--tspr-green-deep); border-color: var(--tspr-green-deep); }
+    .tspr-church.everyone::before { background: var(--tspr-flag-pink); }
+    .tspr-church.everyone .tspr-church-name { color: #fff; }
+    .tspr-church.everyone .tspr-church-note { color: rgba(255,255,255,0.88); }
+    .tspr-church.everyone .tspr-church-btn { background: var(--tspr-flag-pink-deep); }
+    .tspr-church.everyone .tspr-church-btn:hover { background: var(--tspr-flag-pink); }
+
+    /* ================ SHIFT REFERENCE (read-only) ================ */
+    .tspr-phase-ref { background: #fff; border: 2px solid var(--tspr-line); border-radius: 4px; margin-bottom: 10px; transition: border-color 0.2s ease; }
+    .tspr-phase-ref[open] { border-color: var(--tspr-green); }
+    .tspr-phase-ref summary {
+      list-style: none; cursor: pointer; padding: 18px 20px;
+      display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+    }
+    .tspr-phase-ref summary::-webkit-details-marker { display: none; }
+    .tspr-phase-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+    .tspr-phase-ref[data-phase="1"] .tspr-phase-dot { background: var(--tspr-flag-blue); }
+    .tspr-phase-ref[data-phase="2"] .tspr-phase-dot { background: var(--tspr-flag-pink); }
+    .tspr-phase-ref[data-phase="3"] .tspr-phase-dot { background: var(--tspr-flag-pink-deep); }
+    .tspr-phase-ref[data-phase="4"] .tspr-phase-dot { background: var(--tspr-green-bright); }
+    .tspr-phase-ref-name { font-family: 'Fraunces', serif; font-size: 18px; color: var(--tspr-green-deep); font-weight: 700; }
+    .tspr-phase-ref-dates { font-size: 12.5px; color: var(--tspr-muted); font-weight: 600; margin-left: auto; }
+    .tspr-shift-table { width: 100%; border-collapse: collapse; margin: 0; }
+    .tspr-shift-table td {
+      padding: 10px 20px; font-size: 13px; color: var(--tspr-ink-soft);
+      border-top: 1px dashed var(--tspr-line); vertical-align: top; line-height: 1.5;
+    }
+    .tspr-shift-table td:first-child { white-space: nowrap; font-weight: 700; color: var(--tspr-green-deep); font-size: 12.5px; width: 130px; }
+    .tspr-shift-table td:nth-child(2) { font-family: 'Fraunces', serif; font-weight: 700; color: var(--tspr-ink); width: 220px; }
+    @media (max-width: 680px) {
+      .tspr-shift-table td:nth-child(3) { display: none; }
+    }
+
+    /* ================ ROLES ================ */
+    .tspr-roles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    @media (max-width: 960px) { .tspr-roles { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 560px) { .tspr-roles { grid-template-columns: 1fr; } }
+    .tspr-role { background: #fff; border: 2px solid var(--tspr-line); border-radius: 4px; transition: border-color 0.2s ease; }
+    .tspr-role[open] { border-color: var(--tspr-green); }
+    .tspr-role summary { list-style: none; cursor: pointer; padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .tspr-role summary::-webkit-details-marker { display: none; }
+    .tspr-role-name { font-family: 'Fraunces', serif; font-size: 15.5px; color: var(--tspr-green-deep); font-weight: 700; }
+    .tspr-role-count { background: var(--tspr-flag-pink-deep); color: #fff; font-size: 10.5px; font-weight: 800; letter-spacing: 0.08em; padding: 3px 9px; border-radius: 2px; white-space: nowrap; }
+    .tspr-role-desc { font-size: 13px; color: var(--tspr-ink-soft); line-height: 1.55; margin: 0; padding: 0 16px 14px; }
+
+    /* ================ GUIDELINES + CARE ================ */
+    .tspr-guides { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    @media (max-width: 720px) { .tspr-guides { grid-template-columns: 1fr; } }
+    .tspr-guide { background: #fff; border: 2px solid var(--tspr-line); border-radius: 4px; transition: border-color 0.2s ease; }
+    .tspr-guide[open] { border-color: var(--tspr-flag-pink); }
+    .tspr-guide summary { list-style: none; cursor: pointer; padding: 14px 16px; display: flex; align-items: baseline; gap: 12px; }
+    .tspr-guide summary::-webkit-details-marker { display: none; }
+    .tspr-guide-num { font-family: 'Fraunces', serif; font-style: italic; font-size: 20px; color: var(--tspr-flag-pink-deep); font-weight: 500; line-height: 1; }
+    .tspr-guide-title { font-family: 'Fraunces', serif; font-size: 16px; color: var(--tspr-green-deep); font-weight: 700; }
+    .tspr-guide-body { font-size: 13px; color: var(--tspr-ink-soft); line-height: 1.6; margin: 0; padding: 0 16px 14px 48px; }
+
+    .tspr-care { display: grid; grid-template-columns: 1.2fr 1fr 1fr; gap: 0; background: #fff; border: 2px solid var(--tspr-green); border-radius: 4px; overflow: hidden; margin-top: 24px; }
+    @media (max-width: 860px) { .tspr-care { grid-template-columns: 1fr; } }
+    .tspr-care-block { padding: 26px 24px; border-right: 1px solid var(--tspr-line); }
+    .tspr-care-block:last-child { border-right: none; }
+    @media (max-width: 860px) {
+      .tspr-care-block { border-right: none; border-bottom: 1px solid var(--tspr-line); }
+      .tspr-care-block:last-child { border-bottom: none; }
+    }
+    .tspr-care-block.featured { background: var(--tspr-green-deep); color: #fff; }
+    .tspr-care-block.featured .tspr-care-h { color: #fff; }
+    .tspr-care-block.featured .tspr-care-h::before { background: var(--tspr-flag-pink); }
+    .tspr-care-block.featured ul li { color: rgba(255,255,255,0.92); }
+    .tspr-care-block.featured ul li::before { color: var(--tspr-flag-pink); }
+    .tspr-care-h { font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--tspr-green); font-weight: 700; margin: 0 0 14px 0; display: flex; align-items: center; gap: 10px; }
+    .tspr-care-h::before { content: ''; width: 18px; height: 2px; background: var(--tspr-green); }
+    .tspr-care-block ul { list-style: none; padding: 0; margin: 0; }
+    .tspr-care-block ul li { font-size: 13px; color: var(--tspr-ink-soft); padding: 5px 0 5px 20px; line-height: 1.5; position: relative; }
+    .tspr-care-block ul li::before { content: '✦'; position: absolute; left: 0; color: var(--tspr-flag-pink-deep); font-weight: 700; }
+
+    /* ================ DOWNLOADS ================ */
+    .tspr-downloads { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+    @media (max-width: 860px) { .tspr-downloads { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 520px) { .tspr-downloads { grid-template-columns: 1fr; } }
+    .tspr-download { background: #fff; border: 2px solid var(--tspr-line); border-radius: 4px; overflow: hidden; text-decoration: none; color: inherit; display: flex; flex-direction: column; transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease; }
+    .tspr-download:hover { border-color: var(--tspr-green); transform: translateY(-4px); box-shadow: 0 8px 24px rgba(47,44,51,0.1); }
+    .tspr-download-thumb { aspect-ratio: 3 / 4; background: var(--tspr-mint-deep); overflow: hidden; }
+    .tspr-download-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.4s ease; }
+    .tspr-download:hover .tspr-download-thumb img { transform: scale(1.04); }
+    .tspr-download-info { padding: 16px 18px; }
+    .tspr-download-tag { font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--tspr-flag-pink-deep); font-weight: 700; margin: 0 0 6px 0; }
+    .tspr-download-title { font-family: 'Fraunces', serif; font-size: 17px; color: var(--tspr-green-deep); font-weight: 700; margin: 0; line-height: 1.2; }
+
+    /* ================ CONTACTS ================ */
+    .tspr-contacts { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+    @media (max-width: 720px) { .tspr-contacts { grid-template-columns: 1fr; } }
+    .tspr-contact { background: #fff; border: 2px solid var(--tspr-line); border-radius: 4px; padding: 22px; display: grid; grid-template-columns: 52px 1fr; gap: 18px; align-items: start; transition: border-color 0.2s ease; }
+    .tspr-contact:hover { border-color: var(--tspr-green); }
+    .tspr-contact-avatar { width: 52px; height: 52px; border-radius: 50%; background: var(--tspr-mint-deep); display: flex; align-items: center; justify-content: center; font-family: 'Fraunces', serif; font-size: 20px; color: var(--tspr-green-deep); font-weight: 700; }
+    .tspr-contact-role { font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--tspr-flag-pink-deep); font-weight: 700; margin: 0 0 4px 0; }
+    .tspr-contact-name { font-family: 'Fraunces', serif; font-size: 18px; color: var(--tspr-green-deep); margin: 0 0 8px 0; font-weight: 700; }
+    .tspr-contact-link { font-size: 13px; color: var(--tspr-green); text-decoration: none; border-bottom: 1px dotted var(--tspr-green); word-break: break-word; }
+    .tspr-contact-link:hover { color: var(--tspr-flag-pink-deep); border-bottom-color: var(--tspr-flag-pink-deep); }
+
+    /* ================ FINAL CTA ================ */
+    .tspr-finalcta { background: var(--tspr-green-deep); border-radius: 4px; padding: 52px 44px; text-align: center; position: relative; overflow: hidden; margin-top: 24px; }
+    .tspr-finalcta::before, .tspr-finalcta::after { content: ''; position: absolute; border-radius: 50%; opacity: 0.18; }
+    .tspr-finalcta::before { width: 260px; height: 260px; background: var(--tspr-flag-pink); top: -100px; left: -80px; }
+    .tspr-finalcta::after { width: 180px; height: 180px; background: var(--tspr-flag-blue); bottom: -60px; right: -40px; }
+    .tspr-finalcta-inner { position: relative; z-index: 1; }
+    .tspr-finalcta h3 { font-family: 'Fraunces', serif; font-size: clamp(28px, 4vw, 42px); color: #fff; margin: 0 0 14px 0; font-weight: 700; letter-spacing: -0.02em; line-height: 1.1; }
+    .tspr-finalcta h3 em { font-style: italic; color: var(--tspr-flag-pink); font-weight: 500; }
+    .tspr-finalcta p { font-size: 15px; color: rgba(255,255,255,0.85); margin: 0 auto 28px; max-width: 520px; }
+
+    .tspr-volunteers button:focus-visible,
+    .tspr-volunteers a:focus-visible,
+    .tspr-volunteers summary:focus-visible { outline: 3px solid var(--tspr-flag-pink); outline-offset: 3px; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .tspr-volunteers * { transition: none !important; animation: none !important; }
+    }
+  </style>
+
+  <!-- ================ HERO ================ -->
+  <section class="tspr-hero">
+    <div>
+      <p class="tspr-eyebrow">Volunteer Hub</p>
+      <h1>Find your congregation. <em>Raise your hand.</em></h1>
+      <p class="lede">
+        Transpire is a free, no-questions-asked resource market for Louisville&#8217;s trans community —
+        built by twelve congregations and community partners working together. Find yours below
+        and sign up; the form takes about two minutes.
+      </p>
+      <div class="tspr-ctarow">
+        <a class="tspr-btn tspr-btn-primary" href="#tspr-congregations">
+          Find my congregation
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 13l7 7 7-7"/></svg>
+        </a>
+        <a class="tspr-btn tspr-btn-secondary" href="#tspr-shifts-ref">See the schedule first</a>
+      </div>
+    </div>
+
+    <aside class="tspr-eventcard" aria-label="Event details">
+      <p class="date">Sunday<br>June 28, 2026</p>
+      <p class="time">4 — 8 PM</p>
+      <hr>
+      <p class="venue">
+        <strong>First Lutheran Church</strong>
+        417 E. Broadway, Louisville, KY 40202
+      </p>
+    </aside>
+  </section>
+
+  <!-- ================ HOW IT WORKS ================ -->
+  <section class="tspr-section">
+    <div class="tspr-steps">
+      <div class="tspr-step">
+        <span class="tspr-step-num">1</span>
+        <div><h3>Find your congregation</h3><p>Tap your community&#8217;s card below. Not part of one? There&#8217;s a card for you too.</p></div>
+      </div>
+      <div class="tspr-step">
+        <span class="tspr-step-num">2</span>
+        <div><h3>Fill out one short form</h3><p>Pick your shifts and tell us anything that makes a shift good for you.</p></div>
+      </div>
+      <div class="tspr-step">
+        <span class="tspr-step-num">3</span>
+        <div><h3>We take it from there</h3><p>Madelyn confirms your shifts by email. Event-day volunteers meet at orientation June 23.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================ CONGREGATION WALL ================ -->
+  <section class="tspr-section" id="tspr-congregations">
+    <header class="tspr-section-head">
+      <div>
+        <span class="tspr-section-num">01 / Sign up</span>
+        <h2 class="tspr-section-title">Twelve communities, one market.</h2>
+      </div>
+    </header>
+    <p class="tspr-section-intro">
+      Every congregation and partner below is helping raise this market. Find yours and volunteer
+      under its banner — it helps us see which communities are showing up, and celebrate them.
+    </p>
+
+    <div class="tspr-chips" role="group" aria-label="Filter congregations">
+      <button class="tspr-chip is-on" data-filter="all" type="button">All</button>
+      <button class="tspr-chip" data-filter="dropoff" type="button">Drop-off sites</button>
+      <button class="tspr-chip" data-filter="partner" type="button">Planning partners</button>
+      <button class="tspr-chip" data-filter="tentative" type="button">In conversation</button>
+    </div>
+
+    <div class="tspr-churches" id="tspr-churchgrid"></div>
+  </section>
+
+  <!-- ================ SHIFT REFERENCE ================ -->
+  <section class="tspr-section" id="tspr-shifts-ref">
+    <header class="tspr-section-head">
+      <div>
+        <span class="tspr-section-num">02 / The schedule</span>
+        <h2 class="tspr-section-title">What you&#8217;re signing up for.</h2>
+      </div>
+    </header>
+    <p class="tspr-section-intro">
+      Four phases, like a barn raising: sort, stage, celebrate, settle. Browse the shifts here,
+      then pick the ones that fit when you fill out the form. Take two or three if you can.
+    </p>
+    <div id="tspr-phasepanels"></div>
+  </section>
+
+  <!-- ================ DAY-OF ROLES ================ -->
+  <section class="tspr-section">
+    <header class="tspr-section-head">
+      <div>
+        <span class="tspr-section-num">03 / Event-day roles</span>
+        <h2 class="tspr-section-title">A place for every pair of hands.</h2>
+      </div>
+    </header>
+    <p class="tspr-section-intro">Roles are matched at orientation — tap one to see what it involves.</p>
+
+    <!-- EDIT ROLES // -->
+    <div class="tspr-roles">
+      <details class="tspr-role"><summary><span class="tspr-role-name">Welcome &amp; Check-In</span><span class="tspr-role-count">1–2</span></summary><p class="tspr-role-desc">Greet visitors, offer name tags (with pronoun option), distribute resource bags, explain the layout.</p></details>
+      <details class="tspr-role"><summary><span class="tspr-role-name">Fitting Room Monitor</span><span class="tspr-role-count">1</span></summary><p class="tspr-role-desc">Stationed outside fitting rooms. Ensures privacy, manages traffic, restocks discarded items.</p></details>
+      <details class="tspr-role"><summary><span class="tspr-role-name">Clothing Re-Hang</span><span class="tspr-role-count">2</span></summary><p class="tspr-role-desc">Patrols the racks, re-hangs items, maintains sort order, replenishes from back stock.</p></details>
+      <details class="tspr-role"><summary><span class="tspr-role-name">Resource Table Liaison</span><span class="tspr-role-count">2</span></summary><p class="tspr-role-desc">Floats between partner tables, ensures vendors have water and breaks, answers logistical questions.</p></details>
+      <details class="tspr-role"><summary><span class="tspr-role-name">Photography Support</span><span class="tspr-role-count">1</span></summary><p class="tspr-role-desc">Assists Schweizer Photo. Manages photo release forms and consent.</p></details>
+      <details class="tspr-role"><summary><span class="tspr-role-name">AV Support</span><span class="tspr-role-count">1</span></summary><p class="tspr-role-desc">Works with Rev. Bruce on sound, music, and announcements.</p></details>
+      <details class="tspr-role"><summary><span class="tspr-role-name">Hospitality &amp; Refreshments</span><span class="tspr-role-count">1</span></summary><p class="tspr-role-desc">Keeps the refreshment station stocked — coffee, water, snacks.</p></details>
+      <details class="tspr-role"><summary><span class="tspr-role-name">Safety &amp; Care</span><span class="tspr-role-count">2</span></summary><p class="tspr-role-desc">LSURJ representatives on-site. First point of contact for escalations or care needs.</p></details>
+      <details class="tspr-role"><summary><span class="tspr-role-name">Floater</span><span class="tspr-role-count">1+</span></summary><p class="tspr-role-desc">The wild card — covers breaks, restocks, supports wherever the wave hits.</p></details>
+    </div>
+  </section>
+
+  <!-- ================ GUIDELINES + CARE ================ -->
+  <section class="tspr-section">
+    <header class="tspr-section-head">
+      <div>
+        <span class="tspr-section-num">04 / How we show up</span>
+        <h2 class="tspr-section-title">Trans-affirming guidelines.</h2>
+      </div>
+    </header>
+    <p class="tspr-section-intro">A shared posture, not a rulebook. Tap each to read; we&#8217;ll walk through them together at orientation.</p>
+
+    <div class="tspr-guides">
+      <details class="tspr-guide"><summary><span class="tspr-guide-num">01</span><span class="tspr-guide-title">Pronouns first.</span></summary><p class="tspr-guide-body">Share yours when you introduce yourself. Don&#8217;t assume anyone else&#8217;s. If you slip, correct yourself and move on without overcorrecting.</p></details>
+      <details class="tspr-guide"><summary><span class="tspr-guide-num">02</span><span class="tspr-guide-title">No applications, no questions.</span></summary><p class="tspr-guide-body">We don&#8217;t ask attendees their identity, income, or reason for being here. Everything is theirs. Full stop.</p></details>
+      <details class="tspr-guide"><summary><span class="tspr-guide-num">03</span><span class="tspr-guide-title">Affirming language.</span></summary><p class="tspr-guide-body">Skip &#8220;sir&#8221; and &#8220;ma&#8217;am.&#8221; Use &#8220;friend,&#8221; &#8220;neighbor,&#8221; or someone&#8217;s name when you know it.</p></details>
+      <details class="tspr-guide"><summary><span class="tspr-guide-num">04</span><span class="tspr-guide-title">Mind the emotional load.</span></summary><p class="tspr-guide-body">Trans volunteers should not carry the bulk of emotional labor. Spread it across the team — that&#8217;s the point of building this together.</p></details>
+      <details class="tspr-guide"><summary><span class="tspr-guide-num">05</span><span class="tspr-guide-title">Escalate, don&#8217;t engage.</span></summary><p class="tspr-guide-body">If someone behaves disruptively or asks invasive questions, route them to the coordinator or Safety &amp; Care. Don&#8217;t debate.</p></details>
+      <details class="tspr-guide"><summary><span class="tspr-guide-num">06</span><span class="tspr-guide-title">Confidentiality.</span></summary><p class="tspr-guide-body">What happens at the market stays at the market. Don&#8217;t photograph attendees without explicit consent.</p></details>
+    </div>
+
+    <div class="tspr-care">
+      <div class="tspr-care-block featured">
+        <p class="tspr-care-h">Take care of yourself</p>
+        <ul>
+          <li>Take your full break. Hydrate.</li>
+          <li>Need to step away? Tell your shift lead and go.</li>
+          <li>Witness something difficult? Debrief with the coordinator before leaving.</li>
+        </ul>
+      </div>
+      <div class="tspr-care-block">
+        <p class="tspr-care-h">What to bring</p>
+        <ul>
+          <li>Closed-toe shoes (setup &amp; tear-down)</li>
+          <li>Water bottle</li>
+          <li>Mask if you&#8217;d like one</li>
+          <li>Open heart, patient hands</li>
+        </ul>
+      </div>
+      <div class="tspr-care-block">
+        <p class="tspr-care-h">Day-of contacts</p>
+        <ul>
+          <li><strong>Coordinator:</strong> Madelyn Spalding</li>
+          <li><strong>AV / Tech:</strong> Rev. Bruce Beisner</li>
+          <li><strong>Safety:</strong> LSURJ liaison on-site</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================ DOWNLOADS ================ -->
+  <section class="tspr-section">
+    <header class="tspr-section-head">
+      <div>
+        <span class="tspr-section-num">05 / Print and share</span>
+        <h2 class="tspr-section-title">Flyers made to travel.</h2>
+      </div>
+    </header>
+
+    <!-- EDIT DOWNLOADS // -->
+    <div class="tspr-downloads">
+      <a class="tspr-download" href="https://transwellconnects.com/wp-content/uploads/2026/05/Transpire-Market-12.55.16-PM.png" download target="_blank" rel="noopener">
+        <div class="tspr-download-thumb"><img decoding="async" src="https://transwellconnects.com/wp-content/uploads/2026/05/Transpire-Market-12.55.16-PM.png" alt="Donation drive flyer for the Transpire Transgender Resource Market"></div>
+        <div class="tspr-download-info"><p class="tspr-download-tag">Donation Drive</p><h3 class="tspr-download-title">Donate to the Drive</h3></div>
+      </a>
+      <a class="tspr-download" href="https://transwellconnects.com/wp-content/uploads/2026/05/Transpire-Market-volunteers.png" download target="_blank" rel="noopener">
+        <div class="tspr-download-thumb"><img decoding="async" src="https://transwellconnects.com/wp-content/uploads/2026/05/Transpire-Market-volunteers.png" alt="Volunteer recruitment flyer with QR code"></div>
+        <div class="tspr-download-info"><p class="tspr-download-tag">Volunteer · QR</p><h3 class="tspr-download-title">Volunteer with Us</h3></div>
+      </a>
+      <a class="tspr-download" href="https://transwellconnects.com/wp-content/uploads/2026/05/Transpire-Market-volunteers-1.png" download target="_blank" rel="noopener">
+        <div class="tspr-download-thumb"><img decoding="async" src="https://transwellconnects.com/wp-content/uploads/2026/05/Transpire-Market-volunteers-1.png" alt="Volunteer recruitment flyer with website link"></div>
+        <div class="tspr-download-info"><p class="tspr-download-tag">Volunteer · Link</p><h3 class="tspr-download-title">Share the Link</h3></div>
+      </a>
+    </div>
+  </section>
+
+  <!-- ================ CONTACTS ================ -->
+  <section class="tspr-section">
+    <header class="tspr-section-head">
+      <div>
+        <span class="tspr-section-num">06 / Who to ask</span>
+        <h2 class="tspr-section-title">The humans behind the market.</h2>
+      </div>
+    </header>
+
+    <!-- EDIT CONTACTS // -->
+    <div class="tspr-contacts">
+      <div class="tspr-contact">
+        <div class="tspr-contact-avatar">MS</div>
+        <div>
+          <p class="tspr-contact-role">Volunteer Coordinator</p>
+          <h3 class="tspr-contact-name">Madelyn Spalding</h3>
+          <a class="tspr-contact-link" href="mailto:transpire@transwellconnects.com">transpire@transwellconnects.com</a>
+        </div>
+      </div>
+      <div class="tspr-contact">
+        <div class="tspr-contact-avatar">BB</div>
+        <div>
+          <p class="tspr-contact-role">Network Lead · AV &amp; Venue</p>
+          <h3 class="tspr-contact-name">Rev. Bruce Beisner</h3>
+          <a class="tspr-contact-link" href="mailto:office@allpeoplesuu.com">office@allpeoplesuu.com</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================ FINAL CTA ================ -->
+  <section class="tspr-finalcta">
+    <div class="tspr-finalcta-inner">
+      <h3>Your congregation is on the wall. <em>Are you?</em></h3>
+      <p>Every sign-up under a community&#8217;s banner is one more pair of hands building a free, joyful, no-questions-asked space for our trans neighbors.</p>
+      <a class="tspr-btn tspr-btn-primary" href="#tspr-congregations">
+        Find my congregation
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 11l7-7 7 7"/></svg>
+      </a>
+    </div>
+  </section>
+
+</div>
+
+<script>
+(function() {
+  // API URL // Point at the Flask app on your Hostinger VPS (must be HTTPS).
+  var TSPR_API = 'https://api.transwellconnects.com/api';
+
+  // LGL FORM URL //
+  var LGL_FORM = 'https://secure.lglforms.com/form_engine/s/IuCJrpghozG_irg6-_O2pA';
+
+  // EDIT CHURCHES //
+  // `id` is the stable key used for click tracking — DON'T change ids once
+  // live, or your stats will split. Names should match the "Congregation"
+  // dropdown options in the LGL form (see LGL_form_framework.md).
+  // type: 'venue' | 'dropoff' | 'partner' | 'tentative'
+  var CHURCHES = [
+    {
+      id: 'first-lutheran', type: 'venue',
+      name: 'First Lutheran Church',
+      addr: '417 E Broadway, Louisville, KY 40202',
+      note: 'Event venue and Thursday sorting hub. The market lives here June 28.',
+      contact: 'Rev. Bruce Beisner (network lead)',
+      tags: ['Event venue', 'Drop-off site']
+    },
+    {
+      id: 'mandala-house', type: 'dropoff',
+      name: 'Mandala House',
+      addr: '633 Baxter Ave, Louisville, KY 40204',
+      note: 'Confirmed drop-off partner. Accepting clothing donations — call ahead to arrange.',
+      contact: 'Jacks Giles',
+      tags: ['Drop-off site']
+    },
+    {
+      id: 'all-peoples', type: 'dropoff',
+      name: 'All Peoples UU / Justice Center',
+      addr: '4936 Brownsboro Rd, Louisville, KY 40222',
+      note: 'Confirmed drop-off partner and network meeting space.',
+      contact: 'Rev. Bruce Beisner',
+      tags: ['Drop-off site']
+    },
+    {
+      id: 'st-marks', type: 'dropoff',
+      name: "St. Mark's Episcopal Church",
+      addr: '2822 Frankfort Ave, Louisville, KY 40206',
+      note: 'Confirmed drop-off partner. Drop-offs during weekday office hours.',
+      contact: 'Rocky Vanderford',
+      tags: ['Drop-off site']
+    },
+    {
+      id: 'first-unitarian', type: 'dropoff',
+      name: 'First Unitarian Church',
+      addr: '809 S 4th St, Louisville, KY 40203',
+      note: 'Confirmed drop-off partner. Weekdays 10 AM – 2 PM.',
+      contact: 'Church office',
+      tags: ['Drop-off site']
+    },
+    {
+      id: 'goodness-grows', type: 'dropoff',
+      name: 'Goodness Grows Goshen',
+      addr: '12900 W Hwy 42, Prospect, KY 40059',
+      note: 'Confirmed drop-off partner serving the northeast corner and Oldham County.',
+      contact: 'Melanie Smith',
+      tags: ['Drop-off site']
+    },
+    {
+      id: 'ridgewood-baptist', type: 'tentative',
+      name: 'Ridgewood Baptist Church',
+      addr: '6209 Greenwood Rd, Pleasure Ridge Park, KY 40258',
+      note: 'In conversation about joining as a drop-off site — volunteers welcome now.',
+      contact: 'Pastor Molly (church office)',
+      tags: ['In conversation']
+    },
+    {
+      id: 'highland-pres', type: 'tentative',
+      name: 'Highland Presbyterian Church',
+      addr: '1011 Cherokee Rd, Louisville, KY 40204',
+      note: 'In conversation about joining as a drop-off site — volunteers welcome now.',
+      contact: 'Rev. Adrian White',
+      tags: ['In conversation']
+    },
+    {
+      id: 'jeff-st-baptist', type: 'partner',
+      name: 'Jeff St Baptist Community',
+      addr: 'Louisville, KY',
+      note: 'Planning partner since the beginning.',
+      contact: 'Rev. Amy Armstrong',
+      tags: ['Planning partner']
+    },
+    {
+      id: 'krcrc', type: 'partner',
+      name: 'KRCRC',
+      addr: 'Louisville, KY',
+      note: 'Planning partner supporting the network.',
+      contact: 'Rev. Muriel Schmid',
+      tags: ['Planning partner']
+    },
+    {
+      id: 'lpts', type: 'partner',
+      name: 'Louisville Presbyterian Theological Seminary',
+      addr: '1044 Alta Vista Rd, Louisville, KY 40205',
+      note: 'Planning partner supporting the network.',
+      contact: 'Dhawn Martin',
+      tags: ['Planning partner']
+    },
+    {
+      id: 'covenant-community', type: 'partner',
+      name: 'Covenant Community Church (PCUSA)',
+      addr: 'Louisville, KY',
+      note: 'Planning partner supporting the network.',
+      contact: 'Mel Tubb',
+      tags: ['Planning partner']
+    }
+  ];
+
+  // EDIT SHIFTS // Read-only schedule reference shown on the page.
+  // Keep this aligned with the shift checkboxes you build in LGL.
+  var PHASES = [
+    { id: '1', name: 'Sort Week', dates: 'June 13–19', shifts: [
+      ['Sat 6/13 · 10 AM–12 PM', 'Family Sort Day', 'Light sorting and folding. Kids welcome, snacks provided.'],
+      ['Mon 6/15 · 10 AM–12 PM', 'Morning Sort (Retirees)', 'Detailed sorting by size, hanging, tagging.'],
+      ['Mon 6/15 · 6–8 PM', 'Evening Sort', 'Continued sorting and hanging. Good for working folks.'],
+      ['Tue 6/16 · 10 AM–12 PM', 'Morning Sort (Retirees)', 'Continued sizing — bottoms and outerwear.'],
+      ['Wed 6/17 · 6–8 PM', 'Evening Sort', 'Hygiene items, binders, specialty items.'],
+      ['Thu 6/18 · 9 AM–3 PM', 'Drop-off Reception', 'Receive donations, log items, issue receipts.'],
+      ['Thu 6/18 · 6–8 PM', 'Evening Sort', 'Sort fresh Thursday drop-offs.'],
+      ['Sat 6/19 · 10 AM–2 PM', 'Big Sort Saturday', 'Finalize sorting, prep for setup week.']
+    ]},
+    { id: '2', name: 'Setup Week', dates: 'June 21–27', shifts: [
+      ['Tue 6/23 · 6:30–8 PM', 'Volunteer Orientation', 'Required for event-day volunteers. Roles, safety, communication.'],
+      ['Wed 6/24 · 6–8 PM', 'Sort & Stage', 'Move racks into the Sanctuary, begin staging.'],
+      ['Thu 6/25 · 9 AM–3 PM', 'Final Drop-off Reception', 'Last day for donations. Log and sort same-day.'],
+      ['Fri 6/26 · 6–9 PM', 'Pre-Setup Friday', 'Rack assembly, table layout, signage prep.'],
+      ['Sat 6/27 · 9 AM–12 PM', 'Heavy Setup AM', 'Rack assembly, fitting room construction.'],
+      ['Sat 6/27 · 1–4 PM', 'Clothing Hanging', 'Hang clothing by type and size — the big push.'],
+      ['Sat 6/27 · 4–6 PM', 'Final Detail Setup', 'Signage, check-in table, refreshments.']
+    ]},
+    { id: '3', name: 'Event Day', dates: 'Sunday, June 28', shifts: [
+      ['Sun 6/28 · 2–3:30 PM', 'Final Setup Shift', 'Refreshments, last signage, vendor check-in.'],
+      ['Sun 6/28 · 3–3:30 PM', 'Volunteer Briefing', 'All event volunteers. Roles, escalation paths.'],
+      ['Sun 6/28 · 3:30–6 PM', 'Event Shift A', 'Doors open. Welcome, fitting rooms, resource tables.'],
+      ['Sun 6/28 · 5:30–8 PM', 'Event Shift B', '30-minute overlap with Shift A for smooth handoff.'],
+      ['Sun 6/28 · 8–10 PM', 'Tear Down', 'Pack, break down racks, clean, load donations.']
+    ]},
+    { id: '4', name: 'Post-Event', dates: 'June 29–July 1', shifts: [
+      ['Mon 6/29 · 6–8 PM', 'First Sort', 'Triage remaining items: keep / donate / discard.'],
+      ['Tue 6/30 · 10 AM–12 PM', 'Donation Transport', 'Drivers needed. Deliver labeled items to partner orgs.'],
+      ['Wed 7/1 · 6–8 PM', 'Closet Restock', 'Reorganize the resource closet with new inventory.']
+    ]}
+  ];
+
+  var root = document.querySelector('.tspr-volunteers');
+  if (!root || root._tsprInit) return;
+  root._tsprInit = true;
+
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function(c) {
+      return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c];
+    });
+  }
+
+  // ---------- congregation wall ----------
+  var grid = root.querySelector('#tspr-churchgrid');
+
+  CHURCHES.forEach(function(ch) {
+    var card = document.createElement('div');
+    card.className = 'tspr-church ' + ch.type;
+    card.dataset.type = ch.type;
+    card.innerHTML =
+      '<div class="tspr-church-tags">' + ch.tags.map(function(t, i) {
+        var cls = ch.type === 'venue' && i === 1 ? 'dropoff' : ch.type;
+        return '<span class="tspr-church-tag ' + cls + '">' + esc(t) + '</span>';
+      }).join('') + '</div>' +
+      '<h3 class="tspr-church-name">' + esc(ch.name) + '</h3>' +
+      '<p class="tspr-church-addr">' + esc(ch.addr) + '</p>' +
+      '<p class="tspr-church-note">' + esc(ch.note) + '</p>' +
+      '<p class="tspr-church-contact"><strong>Contact:</strong> ' + esc(ch.contact) + '</p>' +
+      '<div class="tspr-church-cta">' +
+        '<button class="tspr-church-btn" type="button" data-church="' + esc(ch.id) + '" data-churchname="' + esc(ch.name) + '">' +
+          'Volunteer with us' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>' +
+        '</button>' +
+      '</div>';
+    grid.appendChild(card);
+  });
+
+  // "No congregation" card — everyone is welcome
+  var everyone = document.createElement('div');
+  everyone.className = 'tspr-church everyone';
+  everyone.dataset.type = 'everyone';
+  everyone.innerHTML =
+    '<div class="tspr-church-tags"><span class="tspr-church-tag venue">Everyone</span></div>' +
+    '<h3 class="tspr-church-name">No congregation? No problem.</h3>' +
+    '<p class="tspr-church-note">You don\u2019t need a church to help raise this market. Community members are the heart of the volunteer crew \u2014 sign up directly.</p>' +
+    '<div class="tspr-church-cta">' +
+      '<button class="tspr-church-btn" type="button" data-church="community" data-churchname="Community member (no congregation)">' +
+        'Volunteer as a community member' +
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>' +
+      '</button>' +
+    '</div>';
+  grid.appendChild(everyone);
+
+  // Click tracking → then open the LGL form. The form ALWAYS opens,
+  // even if the API is down — tracking must never block a volunteer.
+  grid.addEventListener('click', function(e) {
+    var btn = e.target.closest('.tspr-church-btn');
+    if (!btn) return;
+    var payload = JSON.stringify({ church: btn.dataset.church });
+    try {
+      if (navigator.sendBeacon) {
+        navigator.sendBeacon(TSPR_API + '/click', new Blob([payload], { type: 'application/json' }));
+      } else {
+        fetch(TSPR_API + '/click', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: payload, keepalive: true
+        }).catch(function() {});
+      }
+    } catch (err) { /* never block the form */ }
+    // Pass the congregation along as a query param. LGL ignores unknown
+    // params harmlessly; the in-form Congregation dropdown is the source
+    // of truth, this is just a breadcrumb.
+    var url = LGL_FORM + (LGL_FORM.indexOf('?') === -1 ? '?' : '&') +
+              'congregation=' + encodeURIComponent(btn.dataset.churchname);
+    window.open(url, '_blank', 'noopener');
+  });
+
+  // Filter chips
+  var chips = root.querySelectorAll('.tspr-chip');
+  chips.forEach(function(chip) {
+    chip.addEventListener('click', function() {
+      chips.forEach(function(c) { c.classList.remove('is-on'); });
+      chip.classList.add('is-on');
+      var f = chip.dataset.filter;
+      grid.querySelectorAll('.tspr-church').forEach(function(card) {
+        var t = card.dataset.type;
+        var show =
+          f === 'all' ? true :
+          f === 'dropoff' ? (t === 'dropoff' || t === 'venue') :
+          f === 'partner' ? (t === 'partner' || t === 'everyone') :
+          t === f;
+        if (show) card.removeAttribute('hidden'); else card.setAttribute('hidden', '');
+      });
+    });
+  });
+
+  // ---------- read-only shift reference ----------
+  var panels = root.querySelector('#tspr-phasepanels');
+  PHASES.forEach(function(ph, i) {
+    var d = document.createElement('details');
+    d.className = 'tspr-phase-ref';
+    d.dataset.phase = ph.id;
+    if (i === 0) d.setAttribute('open', '');
+    var rows = ph.shifts.map(function(s) {
+      return '<tr><td>' + esc(s[0]) + '</td><td>' + esc(s[1]) + '</td><td>' + esc(s[2]) + '</td></tr>';
+    }).join('');
+    d.innerHTML =
+      '<summary>' +
+        '<span class="tspr-phase-dot"></span>' +
+        '<span class="tspr-phase-ref-name">' + esc(ph.name) + '</span>' +
+        '<span class="tspr-phase-ref-dates">' + esc(ph.dates) + '</span>' +
+      '</summary>' +
+      '<table class="tspr-shift-table">' + rows + '</table>';
+    panels.appendChild(d);
+  });
+})();
+</script>

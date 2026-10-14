@@ -1,12 +1,13 @@
-/* Transpire Feedback: WP Admin results screen.
- * Adds the hover readout to the timeline, the live refresh, and the delete confirmation.
+/* Transpire Feedback: WP Admin screens.
+ * Adds the hover readout to the timeline, the live chart on the Live session
+ * screen, the page refresh on Results, and the confirmations.
  */
 (function () {
   'use strict';
 
   var PLOT_WIDTH = 720;
 
-  [].forEach.call(document.querySelectorAll('[data-tspr-chart]'), function (chart) {
+  function bindChart(chart) {
     var data;
     try { data = JSON.parse(chart.getAttribute('data-tspr-chart')); } catch (e) { return; }
     var band = chart.querySelector('.tspr-chart-band');
@@ -70,11 +71,65 @@
       tip.style.top = Math.max(0, event.clientY - chartBox.top - tip.offsetHeight / 2) + 'px';
     });
     chart.addEventListener('pointerleave', hide);
-  });
+  }
+
+  [].forEach.call(document.querySelectorAll('[data-tspr-chart]'), bindChart);
 
   var live = document.querySelector('[data-tspr-live]');
   if (live) {
     setTimeout(function () { window.location.reload(); }, parseInt(live.getAttribute('data-tspr-live'), 10) * 1000);
+  }
+
+  // Live session screen, while a run is recording: tick the clock every
+  // second and redraw the chart every five seconds.
+  var panel = document.querySelector('[data-tspr-run]');
+  if (panel) {
+    var since = parseInt(panel.getAttribute('data-tspr-since'), 10) * 1000;
+    var skew = parseInt(panel.getAttribute('data-tspr-now'), 10) * 1000 - Date.now();
+    var clock = panel.querySelector('[data-tspr-elapsed]');
+    var totalNode = panel.querySelector('[data-tspr-total]');
+    var devicesNode = panel.querySelector('[data-tspr-devices]');
+    var chartBox = panel.querySelector('[data-tspr-livechart]');
+    var updated = panel.querySelector('[data-tspr-updated]');
+    var url = panel.getAttribute('data-tspr-ajax') +
+      '?action=transpire_fb_live&run=' + encodeURIComponent(panel.getAttribute('data-tspr-run')) +
+      '&_ajax_nonce=' + encodeURIComponent(panel.getAttribute('data-tspr-nonce'));
+    var busy = false;
+
+    var tick = function () {
+      var seconds = Math.max(0, Math.floor((Date.now() + skew - since) / 1000));
+      var h = Math.floor(seconds / 3600);
+      var m = Math.floor(seconds / 60) % 60;
+      var s = seconds % 60;
+      clock.textContent = h + ':' + (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
+    };
+    tick();
+    setInterval(tick, 1000);
+
+    var refresh = function () {
+      if (busy || document.hidden) { return; }
+      busy = true;
+      fetch(url + '&_=' + Date.now(), { credentials: 'same-origin' })
+        .then(function (response) { return response.json(); })
+        .then(function (result) {
+          if (!result || !result.success) { throw new Error('refresh failed'); }
+          if (!result.data.active) {
+            // Stopped somewhere else, or closed for running too long.
+            window.location.reload();
+            return;
+          }
+          totalNode.textContent = result.data.total;
+          devicesNode.textContent = result.data.devices;
+          chartBox.innerHTML = result.data.html;
+          [].forEach.call(chartBox.querySelectorAll('[data-tspr-chart]'), bindChart);
+          if (updated) { updated.textContent = 'Updated ' + new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', second: '2-digit' }); }
+        })
+        .catch(function () {
+          if (updated) { updated.textContent = 'Could not refresh. Trying again…'; }
+        })
+        .then(function () { busy = false; });
+    };
+    setInterval(refresh, 5000);
   }
 
   [].forEach.call(document.querySelectorAll('form[data-tspr-confirm]'), function (form) {

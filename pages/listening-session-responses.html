@@ -1,0 +1,294 @@
+<!-- TRANSPIRE LISTENING SESSION LANDING v1
+     Page: /listening-session-responses/ (the audience page for the 11/19/2026 session).
+     Paste everything in this file into ONE Custom HTML block. The two shortcodes
+     below draw the live reactions and the feedback form (Transpire Feedback plugin). -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;700&amp;family=IBM+Plex+Sans:wght@400;600&amp;display=swap" rel="stylesheet">
+<style>
+  .tspr-ls {
+    --ls-slate: #6F979C;
+    --ls-deep: #3B5E66;
+    --ls-deeper: #24434A;
+    --ls-blue: #5BCEFA;
+    --ls-pink: #F5A9B8;
+    --ls-ink: #141414;
+    --ls-ink-soft: #2B3A3D;
+    --ls-paper: #F4F8F8;
+    --ls-line: #CFE0E2;
+    --ls-ear: #1F3A4D;
+    --ls-wave: #2E78BE;
+    --ls-mono: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+    --ls-sans: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+    max-width: 960px;
+    margin: 0 auto;
+    font-family: var(--ls-sans);
+    font-size: 17px;
+    line-height: 1.6;
+    color: var(--ls-ink);
+  }
+  .tspr-ls *, .tspr-ls *::before, .tspr-ls *::after { box-sizing: border-box; }
+  .tspr-ls h1, .tspr-ls h2, .tspr-ls h3 { font-family: var(--ls-mono); font-weight: 700; letter-spacing: -0.01em; color: var(--ls-ink); }
+  .tspr-ls h2 { margin: 0 0 14px; font-size: clamp(24px, 4.4vw, 32px); line-height: 1.2; }
+  .tspr-ls p { margin: 0 0 14px; }
+  .tspr-ls a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
+  .tspr-ls a:focus-visible { outline: 3px solid var(--ls-pink); outline-offset: 2px; border-radius: 2px; }
+
+  /* Hero: the flyer's arch of trans-flag bands over slate */
+  .tspr-ls-hero { position: relative; overflow: hidden; background: var(--ls-slate); border-radius: 20px 20px 0 0; }
+  .tspr-ls-arcs { display: block; width: 100%; height: clamp(90px, 22vw, 200px); }
+  .tspr-ls-hero-inner { position: relative; padding: 0 24px 36px; }
+  .tspr-ls-title {
+    margin: 0;
+    font-size: clamp(52px, 13.5vw, 128px);
+    line-height: 0.95;
+    letter-spacing: -0.02em;
+    color: #fff !important;
+    text-shadow: 0 2px 0 rgba(36, 67, 74, 0.35);
+  }
+  .tspr-ls-title span { display: block; padding-left: clamp(0px, 14vw, 150px); }
+  .tspr-ls-sub {
+    display: inline-block;
+    margin: 18px 0 0;
+    padding: 8px 16px 8px clamp(16px, 4vw, 40px);
+    background: #fff;
+    font-family: var(--ls-mono);
+    font-weight: 700;
+    font-size: clamp(16px, 2.6vw, 22px);
+    line-height: 1.35;
+  }
+  .tspr-ls-ear {
+    position: absolute;
+    z-index: 1;
+    right: clamp(14px, 4vw, 40px);
+    top: clamp(8px, 4vw, 40px);
+    width: clamp(76px, 15vw, 140px);
+    height: clamp(76px, 15vw, 140px);
+    filter: drop-shadow(0 3px 6px rgba(36, 67, 74, 0.3));
+  }
+  .tspr-ls-topic { max-width: 34ch; margin: 26px 0 0; font-family: var(--ls-mono); font-weight: 700; font-size: clamp(20px, 3.4vw, 28px); line-height: 1.3; }
+  .tspr-ls-topic b { display: block; font-weight: 500; font-size: 0.7em; color: var(--ls-ink-soft); }
+  .tspr-ls a.tspr-ls-jump {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 26px;
+    padding: 12px 22px;
+    background: var(--ls-deeper);
+    border-radius: 999px;
+    color: #fff;
+    font-family: var(--ls-mono);
+    font-weight: 700;
+    font-size: 16px;
+    text-decoration: none;
+  }
+  .tspr-ls a.tspr-ls-jump:hover { background: var(--ls-ink); }
+
+  /* Details, in the flyer's "Label: value" style */
+  .tspr-ls-facts { position: relative; padding: 26px 24px 30px; background: var(--ls-slate); border-top: 6px solid var(--ls-deep); }
+  .tspr-ls-facts dl { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 18px 28px; margin: 0; }
+  .tspr-ls-facts dt { margin: 0 0 2px; font-family: var(--ls-mono); font-weight: 500; font-size: 15px; color: var(--ls-ink-soft); }
+  .tspr-ls-facts dd { margin: 0; font-family: var(--ls-mono); font-weight: 700; font-size: 18px; line-height: 1.4; }
+  .tspr-ls-facts dd small { display: block; font-weight: 500; font-size: 15px; }
+
+  /* Sections */
+  .tspr-ls-section { padding: 40px 24px; background: #fff; }
+  .tspr-ls-section + .tspr-ls-section { border-top: 1px solid var(--ls-line); }
+  .tspr-ls-section > *:last-child { margin-bottom: 0; }
+  .tspr-ls-lede { max-width: 62ch; font-size: 19px; }
+  .tspr-ls-stripe { display: flex; height: 8px; width: 120px; margin: 0 0 18px; border-radius: 4px; overflow: hidden; }
+  .tspr-ls-stripe i { flex: 1; }
+  .tspr-ls-stripe i:nth-child(1), .tspr-ls-stripe i:nth-child(5) { background: var(--ls-blue); }
+  .tspr-ls-stripe i:nth-child(2), .tspr-ls-stripe i:nth-child(4) { background: var(--ls-pink); }
+  .tspr-ls-stripe i:nth-child(3) { background: #fff; box-shadow: inset 0 0 0 1px var(--ls-line); }
+
+  .tspr-ls-react { background: var(--ls-deep); color: #fff; }
+  .tspr-ls-react h2 { color: #fff; }
+  .tspr-ls-react p { max-width: 60ch; }
+
+  .tspr-ls-list { margin: 0; padding: 0; list-style: none; display: grid; gap: 14px; }
+  .tspr-ls-list li { position: relative; padding: 14px 16px 14px 56px; background: var(--ls-paper); border-radius: 12px; }
+  .tspr-ls-list li::before {
+    position: absolute;
+    left: 14px;
+    top: 13px;
+    width: 30px;
+    height: 30px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--ls-slate);
+    color: var(--ls-ink);
+    font-family: var(--ls-mono);
+    font-weight: 700;
+    font-size: 14px;
+  }
+  ol.tspr-ls-list { counter-reset: ls; }
+  ol.tspr-ls-list li { counter-increment: ls; }
+  ol.tspr-ls-list li::before { content: counter(ls, decimal-leading-zero); }
+  ul.tspr-ls-list li::before { content: '\2713'; background: var(--ls-blue); }
+  .tspr-ls-list strong { font-weight: 600; }
+
+  .tspr-ls-feedback { background: var(--ls-paper); }
+
+  /* Presented by */
+  .tspr-ls-foot { padding: 32px 24px 36px; background: var(--ls-slate); border-radius: 0 0 20px 20px; }
+  .tspr-ls-foot-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 22px; align-items: start; }
+  .tspr-ls-label { margin: 0 0 8px !important; font-family: var(--ls-mono); font-weight: 700; font-size: 20px; }
+  .tspr-ls-orgs { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  .tspr-ls-org {
+    display: inline-flex;
+    align-items: center;
+    min-height: 56px;
+    padding: 8px 14px;
+    background: #fff;
+    border-radius: 8px;
+    font-family: var(--ls-mono);
+    font-weight: 700;
+    font-size: 15px;
+    line-height: 1.25;
+  }
+  .tspr-ls-org.is-dark { background: var(--ls-deeper); }
+  .tspr-ls-org img { display: block; width: auto; height: 34px; }
+  .tspr-ls-org small { display: block; font-weight: 500; font-size: 12px; color: var(--ls-ink-soft); }
+  .tspr-ls-contact { margin: 22px 0 0 !important; font-family: var(--ls-mono); font-size: 15px; }
+
+  /* The plugin's widgets, dressed in the flyer's colors */
+  .tspr-ls .tspr-fb {
+    --tspr-fb-mint: #fff;
+    --tspr-fb-line: var(--ls-line);
+    --tspr-fb-green: var(--ls-deep);
+    --tspr-fb-green-deep: var(--ls-deeper);
+    --tspr-fb-ink: var(--ls-ink);
+    --tspr-fb-pink: #C2376B;
+    max-width: none;
+    margin: 22px 0 0;
+    border: 0;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(20, 20, 20, 0.18);
+    font-family: var(--ls-sans);
+  }
+  .tspr-ls .tspr-fb .tspr-fb-title,
+  .tspr-ls .tspr-fb .tspr-fb-eyebrow,
+  .tspr-ls .tspr-fb .tspr-fb-pill,
+  .tspr-ls .tspr-fb button.tspr-fb-submit { font-family: var(--ls-mono); }
+  .tspr-ls .tspr-fb .tspr-fb-title { color: var(--ls-ink); }
+  .tspr-ls .tspr-fb button.tspr-fb-btn { border-radius: 14px; }
+  .tspr-ls .tspr-fb button.tspr-fb-btn:hover,
+  .tspr-ls .tspr-fb button.tspr-fb-btn:focus { border-color: var(--ls-blue); }
+  .tspr-ls .tspr-fb .tspr-fb-test { border-left-color: var(--ls-pink); background: var(--ls-paper); }
+
+  @media (max-width: 600px) {
+    .tspr-ls { font-size: 16px; }
+    .tspr-ls-hero, .tspr-ls-foot { border-radius: 0; }
+    .tspr-ls-hero-inner, .tspr-ls-facts, .tspr-ls-section, .tspr-ls-foot { padding-left: 16px; padding-right: 16px; }
+    .tspr-ls-title span { padding-left: 0; }
+    .tspr-ls .tspr-fb { padding: 20px 14px 16px; }
+  }
+</style>
+
+<div class="tspr-ls">
+  <header class="tspr-ls-hero">
+    <svg class="tspr-ls-arcs" viewBox="0 0 1200 300" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+      <ellipse cx="600" cy="980" rx="1180" ry="975" fill="#3B5E66"/>
+      <ellipse cx="600" cy="980" rx="1170" ry="962" fill="#5BCEFA"/>
+      <ellipse cx="600" cy="980" rx="1130" ry="890" fill="#F5A9B8"/>
+      <ellipse cx="600" cy="980" rx="1090" ry="820" fill="#FFFFFF"/>
+      <ellipse cx="600" cy="980" rx="1050" ry="750" fill="#6F979C"/>
+    </svg>
+    <svg class="tspr-ls-ear" viewBox="0 0 120 120" aria-hidden="true" focusable="false">
+      <circle cx="60" cy="60" r="58" fill="#fff"/>
+      <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M33 44a20 20 0 0 0 0 32M24 36a32 32 0 0 0 0 48M42 52a9 9 0 0 0 0 16" stroke="#2E78BE" stroke-width="5"/>
+        <path d="M52 50c0-17 11-28 26-28s25 11 25 26c0 12-6 18-12 24s-6 12-8 18c-2 7-8 11-15 10-5-1-8-4-9-8" stroke="#1F3A4D" stroke-width="7"/>
+        <path d="M66 52c0-9 5-14 12-14s12 5 12 12c0 6-4 9-8 11" stroke="#1F3A4D" stroke-width="6"/>
+        <path d="M74 66c0-5 3-8 8-8" stroke="#1F3A4D" stroke-width="5"/>
+      </g>
+    </svg>
+    <div class="tspr-ls-hero-inner">
+      <h1 class="tspr-ls-title">Listening<span>Session</span></h1>
+      <p class="tspr-ls-sub">Perspectives from transgender experience</p>
+      <p class="tspr-ls-topic"><b>Topic:</b>“Transgender Paths of Spiritual Schism and Reconciliation”</p>
+      <a class="tspr-ls-jump" href="#tspr-ls-react">Live reactions <span aria-hidden="true">↓</span></a>
+    </div>
+  </header>
+
+  <section class="tspr-ls-facts" aria-label="Event details">
+    <dl>
+      <div>
+        <dt>Date/Time:</dt>
+        <dd>Thursday, 11/19/2026<small>10:30 AM – 12:00 PM</small></dd>
+      </div>
+      <div>
+        <dt>Cost:</dt>
+        <dd>Free</dd>
+      </div>
+      <div>
+        <dt>Host:</dt>
+        <dd>Mandala House<small><a href="https://www.google.com/maps/search/?api=1&amp;query=1169+Eastern+Pkwy+Ste+3353+Louisville+KY" target="_blank" rel="noopener noreferrer">1169 Eastern Pkwy Ste 3353, Louisville</a></small></dd>
+      </div>
+      <div>
+        <dt>Presented by:</dt>
+        <dd>Transpire<small>with All People’s Justice Center</small></dd>
+      </div>
+    </dl>
+  </section>
+
+  <section class="tspr-ls-section">
+    <div class="tspr-ls-stripe" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+    <h2>Welcome. Today, we listen.</h2>
+    <p class="tspr-ls-lede">For too many transgender people, faith communities have been a source of harm instead of home. Today, transgender speakers share their own paths through faith: leaving, being hurt, finding reconciliation, or still searching. Every faith background is welcome in this room, including none.</p>
+    <p class="tspr-ls-lede">For the next ninety minutes, the work of everyone else in the room is to listen.</p>
+  </section>
+
+  <section id="tspr-ls-react" class="tspr-ls-section tspr-ls-react">
+    <h2>React as you listen</h2>
+    <p>When something lands, tap how it lands. Only the organizers see the taps, as an anonymous timeline of how the room responded, to reflect on the session afterward.</p>
+    [transpire_reactions]
+  </section>
+
+  <section class="tspr-ls-section">
+    <h2>Why we’re gathered</h2>
+    <ol class="tspr-ls-list">
+      <li>To hear what trans people need from faith communities for those communities to become genuinely welcoming and affirming.</li>
+      <li>To learn what the trans community needs and wants from congregations that say they stand in solidarity.</li>
+      <li>To move congregations from good intentions to concrete change, and to hold them accountable for it.</li>
+    </ol>
+  </section>
+
+  <section class="tspr-ls-section">
+    <h2>How we hold this room</h2>
+    <ul class="tspr-ls-list">
+      <li><strong>Questions are prepared in advance.</strong> Speakers have seen every question before today.</li>
+      <li><strong>Speakers set the limits.</strong> Anyone can pass on any question, with no explanation needed.</li>
+      <li><strong>A moderator guides the conversation</strong> and steps in on any question that is harmful or off-topic.</li>
+      <li><strong>Support is here afterward</strong> for the trans folks who take part.</li>
+    </ul>
+  </section>
+
+  <section class="tspr-ls-section tspr-ls-feedback">
+    <h2>After the session</h2>
+    <p>Tell us what stayed with you and what you will carry back to your congregation or community. Every question is optional, and the form stays open for two weeks.</p>
+    [transpire_feedback]
+  </section>
+
+  <footer class="tspr-ls-foot">
+    <div class="tspr-ls-foot-grid">
+      <div>
+        <p class="tspr-ls-label">Presented by</p>
+        <div class="tspr-ls-orgs">
+          <span class="tspr-ls-org is-dark"><img src="https://transwellconnects.com/wp-content/uploads/2026/05/Transpire-logo2.png" alt="Transpire" width="138" height="34"></span>
+          <span class="tspr-ls-org">All People’s Justice Center</span>
+        </div>
+      </div>
+      <div>
+        <p class="tspr-ls-label">Hosted by</p>
+        <div class="tspr-ls-orgs">
+          <span class="tspr-ls-org"><span>Mandala House<small>Mental Health</small></span></span>
+        </div>
+      </div>
+    </div>
+    <p class="tspr-ls-contact">Questions? <a href="mailto:transpire@transwellconnects.com">transpire@transwellconnects.com</a></p>
+  </footer>
+</div>

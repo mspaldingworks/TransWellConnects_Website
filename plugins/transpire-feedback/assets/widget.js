@@ -76,15 +76,15 @@
       });
   }
 
-  // Check again just after the session opens or closes, and every two minutes
-  // in between in case the organizers change a setting.
+  // The organizers open and close reactions with a Start / Stop button, so
+  // check often enough that a press reaches every phone within seconds: every
+  // 15 seconds while closed, every 45 while open (a tap on a closed session
+  // also triggers a check). Also check just after the scheduled start.
   function schedule() {
     clearTimeout(timer);
     var now = Date.now() + skew;
-    var wait = 120000;
-    [status.start * 1000, status.end * 1000].forEach(function (moment) {
-      if (moment > now) { wait = Math.min(wait, moment - now + 1500); }
-    });
+    var wait = status.reactions_open ? 45000 : 15000;
+    if (status.start * 1000 > now) { wait = Math.min(wait, status.start * 1000 - now + 1500); }
     timer = setTimeout(function () {
       if (document.hidden) { schedule(); } else { loadStatus(); }
     }, wait);
@@ -100,7 +100,7 @@
     head.appendChild(el('h3', 'tspr-fb-title', title));
     root.appendChild(head);
     if (s.test) {
-      root.appendChild(el('p', 'tspr-fb-test', 'Test mode: anything sent now is saved as test data.'));
+      root.appendChild(el('p', 'tspr-fb-test', 'Rehearsal: anything sent now is saved as practice data, apart from the real session.'));
     }
   }
 
@@ -197,7 +197,7 @@
         var pill = el('p', 'tspr-fb-pill', s.phase === 'before' ? 'Not open yet' : 'Session ended');
         root.appendChild(pill);
         if (s.phase === 'before') {
-          root.appendChild(el('p', 'tspr-fb-message', 'Reactions open ' + s.start_label + ' and stay open until ' + s.end_label + '. Keep this page handy.'));
+          root.appendChild(el('p', 'tspr-fb-message', 'Reactions open when the session begins, ' + s.start_label + '. Keep this page open: the buttons will appear by themselves.'));
         } else {
           root.appendChild(el('p', 'tspr-fb-message', 'Thank you for listening. Reactions for this session are closed.'));
           if (document.getElementById('transpire-feedback')) {

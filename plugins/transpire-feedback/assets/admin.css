@@ -119,3 +119,52 @@
 .tspr-admin .tspr-spread .tspr-num { padding-left: 10px; }
 
 .tspr-admin .tspr-danger { margin: 8px 0 24px; }
+
+/* Live session: the Start / Stop button and what is being recorded */
+.tspr-admin .tspr-control { border-width: 2px; }
+.tspr-admin .tspr-control.is-recording { border-color: #d63638; }
+.tspr-admin .tspr-control .description { max-width: 760px; margin: 12px 0 0; }
+.tspr-admin .tspr-start-fields { display: grid; gap: 6px; max-width: 520px; margin-bottom: 14px; }
+.tspr-admin .tspr-start-fields > label:first-child { font-weight: 600; }
+.tspr-admin .tspr-check { margin-top: 4px; }
+.tspr-admin button.tspr-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 52px;
+  padding: 0 28px;
+  border: 0;
+  border-radius: 999px;
+  color: #fff;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.tspr-admin button.tspr-toggle.is-start { background: var(--tspr-mark); }
+.tspr-admin button.tspr-toggle.is-start:hover { background: #006b00; }
+.tspr-admin button.tspr-toggle.is-stop { background: #d63638; }
+.tspr-admin button.tspr-toggle.is-stop:hover { background: #b32d2e; }
+.tspr-admin button.tspr-toggle:focus-visible { outline: 3px solid #2271b1; outline-offset: 3px; }
+.tspr-admin .tspr-rec { display: flex; align-items: center; gap: 8px; margin: 0 0 4px; font-size: 16px; }
+.tspr-admin .tspr-rec-dot { width: 12px; height: 12px; border-radius: 50%; background: #d63638; animation: tspr-rec 1.4s ease-in-out infinite; }
+@keyframes tspr-rec { 50% { opacity: 0.25; } }
+.tspr-admin .tspr-rec-meta { margin: 0 0 14px; color: var(--tspr-ink-2); font-variant-numeric: tabular-nums; }
+.tspr-admin .tspr-rec-meta strong { color: var(--tspr-ink); }
+
+/* Saved records */
+.tspr-admin .tspr-badge { display: inline-block; margin-left: 6px; padding: 0 8px; border-radius: 999px; background: #f0f0f1; font-size: 11px; font-weight: 600; line-height: 20px; color: var(--tspr-ink-2); }
+.tspr-admin .tspr-badge.is-live { background: #fcf0f1; color: #b32d2e; }
+.tspr-admin .tspr-runs td { vertical-align: top; }
+.tspr-admin .tspr-links { white-space: nowrap; }
+.tspr-admin .tspr-inline { display: inline; }
+
+/* Report: moments to revisit */
+.tspr-admin .tspr-moments { margin: 12px 0 0; padding-left: 22px; }
+.tspr-admin .tspr-moments li { margin: 0 0 16px; }
+.tspr-admin .tspr-moment-total { margin-left: 8px; color: var(--tspr-ink-2); }
+.tspr-admin .tspr-moment-mix { display: block; color: var(--tspr-ink); }
+.tspr-admin .tspr-note { display: block; margin-top: 6px; padding-bottom: 18px; border-bottom: 1px dashed var(--tspr-axis); font-size: 12px; color: var(--tspr-muted); }
+
+@media (prefers-reduced-motion: reduce) {
+  .tspr-admin .tspr-rec-dot { animation: none; }
+}

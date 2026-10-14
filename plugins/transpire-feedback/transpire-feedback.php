@@ -1,8 +1,8 @@
 <?php
 /**
  * Plugin Name:       Transpire Feedback
- * Description:       Live audience reactions and a feedback form for Transpire listening sessions. Every reaction is saved with its time, so organizers can see how the room responded across the session.
- * Version:           1.0.0
+ * Description:       Live audience reactions and a feedback form for Transpire listening sessions. Organizers start and stop recording with one button; every reaction is saved with its time, so they can see how the room responded across the session.
+ * Version:           1.1.0
  * Requires at least: 6.0
  * Requires PHP:      7.4
  * Author:            Transpire
@@ -13,13 +13,17 @@
  *   [transpire_reactions]  the emoji buttons the audience taps during the session
  *   [transpire_feedback]   the written feedback form
  *
- * Results and settings live under "Transpire Feedback" in WP Admin.
+ * The Start / Stop button, results and settings live under "Transpire
+ * Feedback" in WP Admin. Each start-to-stop is saved as its own record (a
+ * "run"), with its own report and downloads.
  */
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'TRANSPIRE_FB_VERSION', '1.0.0' );
-define( 'TRANSPIRE_FB_DB_VERSION', '1' );
+define( 'TRANSPIRE_FB_VERSION', '1.1.0' );
+define( 'TRANSPIRE_FB_DB_VERSION', '2' );
+// A run nobody stops is closed this long after it started, so a forgotten rehearsal cannot leave the buttons open overnight.
+define( 'TRANSPIRE_FB_MAX_RUN', 4 * HOUR_IN_SECONDS );
 define( 'TRANSPIRE_FB_FILE', __FILE__ );
 
 /* -------------------------------------------------------------------------
@@ -39,7 +43,7 @@ function transpire_fb_defaults() {
 		'questions'     => "What is one thing you heard today that will stay with you?\nWhat is one change you will take back to your congregation or community?\nIs there anything else you want the organizers to know?",
 		'roles'         => "Clergy\nLay leader\nCongregation member\nCommunity member\nSpeaker\nOther",
 		'ask_email'     => 1,
-		'test_mode'     => 0,
+		'auto_start'    => 1,
 	);
 }
 
@@ -129,34 +133,125 @@ function transpire_fb_window() {
 	);
 }
 
+/* -------------------------------------------------------------------------
+ * Runs: one row per press of Start, closed by Stop
+ * ---------------------------------------------------------------------- */
+
+/** The run being recorded now, or null. Closes a run that has passed the maximum length. */
+function transpire_fb_active_run() {
+	global $wpdb;
+	$table = transpire_fb_table( 'runs' );
+	$run   = $wpdb->get_row( "SELECT * FROM {$table} WHERE ended_ts = 0 ORDER BY id DESC LIMIT 1" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name only.
+	if ( $run && time() - (int) $run->started_ts >= TRANSPIRE_FB_MAX_RUN ) {
+		$wpdb->update( $table, array( 'ended_ts' => (int) $run->started_ts + TRANSPIRE_FB_MAX_RUN ), array( 'id' => (int) $run->id ), array( '%d' ), array( '%d' ) );
+		return null;
+	}
+	return $run;
+}
+
+function transpire_fb_get_run( $id ) {
+	global $wpdb;
+	$table = transpire_fb_table( 'runs' );
+	return $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$table} WHERE id = %d", (int) $id ) );
+}
+
+/** Newest first. */
+function transpire_fb_runs( $limit = 100 ) {
+	global $wpdb;
+	$table = transpire_fb_table( 'runs' );
+	return (array) $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$table} ORDER BY started_ts DESC, id DESC LIMIT %d", (int) $limit ) );
+}
+
+/** Closes whatever is running, then opens a new run. Returns the new run's id. */
+function transpire_fb_start_run( $label, $is_test, $started_by ) {
+	global $wpdb;
+	transpire_fb_stop_run();
+	$wpdb->insert(
+		transpire_fb_table( 'runs' ),
+		array(
+			'session_key' => transpire_fb_session_key(),
+			'label'       => wp_encode_emoji( mb_substr( $label, 0, 190 ) ),
+			'is_test'     => $is_test ? 1 : 0,
+			'started_by'  => $started_by,
+			'started_ts'  => time(),
+			'ended_ts'    => 0,
+		),
+		array( '%s', '%s', '%d', '%s', '%d', '%d' )
+	);
+	return (int) $wpdb->insert_id;
+}
+
+function transpire_fb_stop_run() {
+	global $wpdb;
+	$table = transpire_fb_table( 'runs' );
+	$wpdb->query( $wpdb->prepare( "UPDATE {$table} SET ended_ts = %d WHERE ended_ts = 0", time() ) );
+}
+
 /**
- * What is open right now.
- *
- * Test mode only applies outside the session window. During the real session
- * every reaction is recorded as real, even if test mode was left switched on.
+ * The safety net for the real session: if nobody has pressed Start by the
+ * scheduled start time, recording starts by itself. A rehearsal still running
+ * at that moment is closed first, so practice data never mixes with the real
+ * record. It fires at most once per scheduled start, and not at all when a
+ * real run was already started for this session in the hours before.
+ */
+function transpire_fb_maybe_autostart( $now, $window ) {
+	global $wpdb;
+	$options = transpire_fb_options();
+	if ( empty( $options['auto_start'] ) || $now < $window['start'] || $now >= $window['end'] ) {
+		return;
+	}
+	$active = transpire_fb_active_run();
+	if ( $active && ! (int) $active->is_test ) {
+		return;
+	}
+	$runs = transpire_fb_table( 'runs' );
+	$real = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$runs} WHERE is_test = 0 AND session_key = %s AND started_ts >= %d", transpire_fb_session_key(), $window['start'] - 3 * HOUR_IN_SECONDS ) );
+	if ( $real ) {
+		return;
+	}
+	// INSERT IGNORE on the unique option name lets exactly one of several simultaneous requests through.
+	$claimed = $wpdb->query( $wpdb->prepare( "INSERT IGNORE INTO {$wpdb->options} (option_name, option_value, autoload) VALUES (%s, %s, 'no')", 'transpire_fb_autostart_' . $window['start'], (string) $now ) );
+	if ( 1 === (int) $claimed ) {
+		transpire_fb_start_run( $options['session_name'], false, 'schedule' );
+	}
+}
+
+/**
+ * What is open right now. Reactions are open only while a run is being
+ * recorded. The feedback form opens with the first run and stays open for the
+ * set number of days after the last real (non-rehearsal) run ends.
  */
 function transpire_fb_state() {
-	$now       = time();
-	$options   = transpire_fb_options();
-	$window    = transpire_fb_window();
-	$in_window = $now >= $window['start'] && $now < $window['end'];
-	$is_test   = ! empty( $options['test_mode'] ) && ! $in_window;
-	$until     = $window['end'] + max( 0, (int) $options['feedback_days'] ) * DAY_IN_SECONDS;
+	global $wpdb;
+	$now     = time();
+	$options = transpire_fb_options();
+	$window  = transpire_fb_window();
 
-	if ( $now < $window['start'] ) {
-		$phase = 'before';
-	} elseif ( $in_window ) {
+	transpire_fb_maybe_autostart( $now, $window );
+	$run = transpire_fb_active_run();
+
+	$runs     = transpire_fb_table( 'runs' );
+	$last     = $wpdb->get_row( $wpdb->prepare( "SELECT id, ended_ts FROM {$runs} WHERE session_key = %s AND is_test = 0 AND ended_ts > 0 ORDER BY ended_ts DESC LIMIT 1", transpire_fb_session_key() ) );
+	$last_end = $last ? (int) $last->ended_ts : 0;
+	$until    = max( $last_end, $window['end'] ) + max( 0, (int) $options['feedback_days'] ) * DAY_IN_SECONDS;
+
+	if ( $run ) {
 		$phase = 'open';
-	} else {
+	} elseif ( $last_end || $now >= $window['end'] ) {
 		$phase = 'after';
+	} else {
+		$phase = 'before';
 	}
 
 	return array(
 		'now'            => $now,
 		'phase'          => $phase,
-		'is_test'        => $is_test,
-		'reactions_open' => $in_window || $is_test,
-		'feedback_open'  => $is_test || ( $now >= $window['start'] && $now <= $until ),
+		'run'            => $run,
+		// Feedback sent after a real run ends is filed with that run.
+		'run_id'         => $run ? (int) $run->id : ( $last ? (int) $last->id : 0 ),
+		'is_test'        => $run && (int) $run->is_test,
+		'reactions_open' => (bool) $run,
+		'feedback_open'  => $run || ( ( $last_end || $now >= $window['start'] ) && $now <= $until ),
 		'feedback_until' => $until,
 	);
 }
@@ -176,17 +271,35 @@ function transpire_fb_install() {
 	$charset = $wpdb->get_charset_collate();
 
 	// created_ts is a Unix timestamp, so results do not depend on the server's timezone.
+	// run_id is 0 for rows saved before version 1.1, when there were no runs.
 	dbDelta(
 		'CREATE TABLE ' . transpire_fb_table( 'reactions' ) . " (
 			id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
 			session_key varchar(100) NOT NULL,
+			run_id bigint(20) unsigned NOT NULL DEFAULT 0,
 			reaction_key varchar(60) NOT NULL,
 			client_hash char(16) NOT NULL,
 			is_test tinyint(1) NOT NULL DEFAULT 0,
 			created_ts int(10) unsigned NOT NULL,
 			PRIMARY KEY  (id),
 			KEY session_time (session_key, created_ts),
+			KEY run_time (run_id, created_ts),
 			KEY client (client_hash, id)
+		) $charset;"
+	);
+
+	// ended_ts is 0 while the run is being recorded.
+	dbDelta(
+		'CREATE TABLE ' . transpire_fb_table( 'runs' ) . " (
+			id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+			session_key varchar(100) NOT NULL,
+			label varchar(190) NOT NULL DEFAULT '',
+			is_test tinyint(1) NOT NULL DEFAULT 0,
+			started_by varchar(20) NOT NULL DEFAULT '',
+			started_ts int(10) unsigned NOT NULL,
+			ended_ts int(10) unsigned NOT NULL DEFAULT 0,
+			PRIMARY KEY  (id),
+			KEY ended (ended_ts)
 		) $charset;"
 	);
 
@@ -194,6 +307,7 @@ function transpire_fb_install() {
 		'CREATE TABLE ' . transpire_fb_table( 'feedback' ) . " (
 			id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
 			session_key varchar(100) NOT NULL,
+			run_id bigint(20) unsigned NOT NULL DEFAULT 0,
 			rating tinyint(3) unsigned NOT NULL DEFAULT 0,
 			role varchar(100) NOT NULL DEFAULT '',
 			answers longtext NOT NULL,
@@ -203,6 +317,7 @@ function transpire_fb_install() {
 			created_ts int(10) unsigned NOT NULL,
 			PRIMARY KEY  (id),
 			KEY session_time (session_key, created_ts),
+			KEY run_id (run_id),
 			KEY client (client_hash, id)
 		) $charset;"
 	);
@@ -387,12 +502,13 @@ function transpire_fb_rest_react( WP_REST_Request $request ) {
 		$table,
 		array(
 			'session_key'  => transpire_fb_session_key(),
+			'run_id'       => $state['run_id'],
 			'reaction_key' => $key,
 			'client_hash'  => $client,
 			'is_test'      => $state['is_test'] ? 1 : 0,
 			'created_ts'   => $state['now'],
 		),
-		array( '%s', '%s', '%s', '%d', '%d' )
+		array( '%s', '%d', '%s', '%s', '%d', '%d' )
 	);
 
 	if ( ! $saved ) {
@@ -477,7 +593,8 @@ function transpire_fb_rest_feedback( WP_REST_Request $request ) {
 		);
 	}
 
-	$already = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$table} WHERE client_hash = %s AND session_key = %s", $client, $session ) );
+	// Counted separately for rehearsals, so trying the form out does not use up a device's real answers.
+	$already = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$table} WHERE client_hash = %s AND session_key = %s AND is_test = %d", $client, $session, $state['is_test'] ? 1 : 0 ) );
 	if ( $already >= 3 || transpire_fb_throttled( 'f', 60, HOUR_IN_SECONDS ) ) {
 		return transpire_fb_response(
 			array(
@@ -492,6 +609,7 @@ function transpire_fb_rest_feedback( WP_REST_Request $request ) {
 		$table,
 		array(
 			'session_key' => $session,
+			'run_id'      => $state['run_id'],
 			'rating'      => $rating,
 			'role'        => wp_encode_emoji( $role ),
 			// wp_json_encode escapes non-ASCII, so emoji in answers survive any database charset.
@@ -501,7 +619,7 @@ function transpire_fb_rest_feedback( WP_REST_Request $request ) {
 			'is_test'     => $state['is_test'] ? 1 : 0,
 			'created_ts'  => $state['now'],
 		),
-		array( '%s', '%d', '%s', '%s', '%s', '%s', '%d', '%d' )
+		array( '%s', '%d', '%d', '%s', '%s', '%s', '%s', '%d', '%d' )
 	);
 
 	if ( ! $saved ) {

@@ -12,6 +12,7 @@ The site runs on WordPress (Astra theme, Spectra blocks), which keeps pages in i
 | [pages/volunteer-hub.html](pages/volunteer-hub.html) | [Volunteer Hub](https://transwellconnects.com/services/) | A Spectra banner, then one hand-written Custom HTML block |
 | [pages/contact.html](pages/contact.html) | [Contact](https://transwellconnects.com/contact/) | Spectra blocks and a SureForms contact form |
 | [pages/listening-session-11-19-2026.html](pages/listening-session-11-19-2026.html) | [Listening Session: 11/19/2026](https://transwellconnects.com/listening-session-11-19-2026/) | Standard WordPress paragraph, heading and list blocks |
+| [pages/pride-and-joy-boxes.html](pages/pride-and-joy-boxes.html) | Pride and Joy Boxes (`/pride-and-joy-boxes/`, not yet on the site) | One Custom HTML block holding the whole file |
 
 Project Tracking (`/project-tracking/`) is password-protected on the site and is not in this repo.
 
@@ -37,6 +38,7 @@ Which code goes in which block:
 
 - **Home** has four Custom HTML blocks, in this order: the hero (starts at `<div class="transpire-hero">`), the event section (`<div class="transpire-event"`), the about section (`<div class="transpire-about">`), and the drop-off network map (from the `TRANSPIRE DROP-OFF NETWORK MAP` comment to the end of the file).
 - **Volunteer Hub** has one Custom HTML block. It holds everything from the `TRANSPIRE VOLUNTEER HUB v3` comment to the end of the file. The three lines above that comment are the Spectra banner and stay out of the paste.
+- **Pride and Joy Boxes** has one Custom HTML block holding the whole file. Its request form saves nothing on the site: it opens the visitor's email app addressed to `REQUEST_EMAIL` near the top of the script. Replace the yellow `[bracketed]` placeholders (class `pjb-todo`: price, how often boxes go out, who can get one, how subscribers pay) before publishing.
 
 ## Transpire Feedback plugin
 

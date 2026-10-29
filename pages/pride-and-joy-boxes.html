@@ -1,0 +1,781 @@
+<!--
+  PRIDE AND JOY BOXES — for transwellconnects.com
+  ============================================================
+  Care packages that are also art boxes: art and sparkle in
+  every box, gender-affirming items only when someone asks.
+
+  The whole file goes in ONE Custom HTML block on its own page.
+
+  The request form saves nothing on the website. Pressing the
+  button opens the visitor's email app with their answers filled
+  in, addressed to REQUEST_EMAIL below. If no email app opens,
+  the page shows the same text with a Copy button.
+
+  PLACEHOLDERS: the [bracketed] text with a yellow highlight
+  (class "pjb-todo") is still to be decided: price, how often
+  boxes go out, who can get one, how subscribers pay. Search for
+  pjb-todo and replace each one, span and all, before publishing.
+
+  Editable blocks:
+    // REQUEST EMAIL //   — where requests go
+    // EDIT JOY PICKS //  — the art and sparkle options (HTML)
+    // EDIT ITEMS //      — the gender-affirming options (HTML)
+  ============================================================
+-->
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,700;0,9..144,800;1,9..144,500&amp;family=Montserrat:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet">
+
+<div class="pjb-page">
+
+  <style>
+    .pjb-page {
+      --pjb-mint: #E7F4F0;
+      --pjb-mint-soft: #F2F8F5;
+      --pjb-mint-deep: #C8E3D8;
+      --pjb-line: #D4E3DC;
+      --pjb-green: #4A6A3A;
+      --pjb-green-deep: #3A5530;
+      --pjb-ink: #2F2C33;
+      --pjb-ink-soft: #404249;
+      --pjb-muted: #6B6F77;
+      --pjb-pink: #F482B6;
+      --pjb-pink-deep: #C2457A;
+      --pjb-blue: #5BCEFA;
+      --pjb-gold: #EBD235;
+      --pjb-violet: #9B6BD3;
+
+      font-family: 'Montserrat', system-ui, -apple-system, sans-serif;
+      color: var(--pjb-ink);
+      background: var(--pjb-mint);
+      line-height: 1.6;
+      padding: 56px 32px 80px;
+      box-sizing: border-box;
+      max-width: 1200px;
+      margin: 0 auto;
+      font-weight: 400;
+      overflow-x: clip;
+    }
+    .pjb-page *,.pjb-page *::before, .pjb-page *::after { box-sizing: border-box; }
+    @media (max-width: 600px) { .pjb-page { padding: 40px 16px 64px; } }
+
+    /* ================ HERO ================ */
+    .pjb-hero {
+      display: grid; grid-template-columns: 1.4fr 1fr; gap: 56px; align-items: center;
+      margin-bottom: 64px; padding-bottom: 48px; border-bottom: 2px solid var(--pjb-green);
+    }
+    @media (max-width: 860px) { .pjb-hero { grid-template-columns: 1fr; gap: 36px; } }
+
+    .pjb-eyebrow {
+      font-size: 12px; letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--pjb-green); font-weight: 700; margin: 0 0 18px 0;
+      display: inline-flex; align-items: center; gap: 12px;
+    }
+    .pjb-eyebrow::before { content: ''; width: 28px; height: 2px; background: var(--pjb-green); }
+
+    .pjb-hero h1 {
+      font-family: 'Fraunces', Georgia, serif;
+      font-size: clamp(36px, 5.2vw, 62px); line-height: 1.04; letter-spacing: -0.025em;
+      color: var(--pjb-green-deep); margin: 0 0 20px 0; font-weight: 700;
+      font-variation-settings: "opsz" 144;
+    }
+    .pjb-hero h1 em {
+      font-style: italic; font-weight: 500; color: var(--pjb-pink-deep);
+      background: linear-gradient(100deg, var(--pjb-pink-deep) 0%, var(--pjb-violet) 45%, #2B8FBF 70%, var(--pjb-pink-deep) 100%);
+      background-size: 220% 100%;
+      -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+      animation: pjb-shimmer 7s ease-in-out infinite;
+    }
+    @keyframes pjb-shimmer { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+    .pjb-hero .lede { font-size: 17px; color: var(--pjb-ink-soft); max-width: 560px; margin: 0 0 28px 0; }
+
+    .pjb-ctarow { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; }
+    .pjb-btn {
+      display: inline-flex; align-items: center; gap: 10px; padding: 16px 28px;
+      font-family: 'Montserrat', sans-serif; font-size: 13px; letter-spacing: 0.12em;
+      text-transform: uppercase; font-weight: 700; text-decoration: none;
+      border-radius: 2px; cursor: pointer; border: 2px solid transparent;
+      transition: transform 0.15s ease, background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .pjb-btn-primary { background: var(--pjb-pink-deep); color: #fff; box-shadow: 0 4px 0 var(--pjb-green-deep); }
+    .pjb-btn-primary:hover { transform: translate(-2px, -2px); box-shadow: 0 6px 0 var(--pjb-green-deep); background: #D2558B; color: #fff; }
+    .pjb-btn-secondary { background: transparent; color: var(--pjb-green-deep); border-color: var(--pjb-green); }
+    .pjb-btn-secondary:hover { background: var(--pjb-green); color: #fff; }
+    .pjb-btn svg { width: 16px; height: 16px; }
+
+    /* The box card, with a little glitter scattered around it */
+    .pjb-boxcard {
+      background: #fff; border: 2px solid var(--pjb-green); padding: 34px 28px 28px;
+      border-radius: 4px; position: relative; box-shadow: 6px 6px 0 var(--pjb-pink-deep);
+    }
+    .pjb-boxcard::before {
+      content: 'IN EVERY BOX'; position: absolute; top: -12px; left: 24px;
+      background: var(--pjb-mint); color: var(--pjb-pink-deep);
+      font-size: 11px; font-weight: 800; letter-spacing: 0.18em; padding: 0 10px;
+    }
+    .pjb-boxcard::after {
+      content: ''; position: absolute; inset: -34px -24px auto auto; width: 120px; height: 44px; pointer-events: none;
+      background:
+        radial-gradient(circle, var(--pjb-gold) 0 3px, transparent 4px) 8px 14px / 34px 30px,
+        radial-gradient(circle, var(--pjb-blue) 0 2.5px, transparent 3.5px) 22px 4px / 40px 34px,
+        radial-gradient(circle, var(--pjb-pink) 0 2px, transparent 3px) 0 24px / 28px 26px;
+      opacity: 0.85;
+    }
+    .pjb-boxcard-list { list-style: none; padding: 0; margin: 0; }
+    .pjb-boxcard-list li {
+      display: grid; grid-template-columns: 34px 1fr; gap: 12px; align-items: start;
+      padding: 12px 0; border-top: 1px dashed var(--pjb-line);
+    }
+    .pjb-boxcard-list li:first-child { border-top: none; padding-top: 0; }
+    .pjb-boxcard-icon {
+      width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-size: 16px; color: var(--pjb-green-deep); background: var(--pjb-mint-deep);
+    }
+    .pjb-boxcard-list strong { display: block; font-family: 'Fraunces', serif; font-size: 16px; color: var(--pjb-green-deep); line-height: 1.25; }
+    .pjb-boxcard-list span { font-size: 13px; color: var(--pjb-ink-soft); line-height: 1.5; }
+    .pjb-boxcard-list li.on-request .pjb-boxcard-icon { background: var(--pjb-pink); color: #fff; }
+
+    /* ================ SECTION SCAFFOLD ================ */
+    .pjb-section { margin-bottom: 72px; scroll-margin-top: 24px; }
+    .pjb-section-head { margin-bottom: 24px; padding-bottom: 14px; border-bottom: 2px solid var(--pjb-green); }
+    .pjb-section-title {
+      font-family: 'Fraunces', Georgia, serif; font-size: clamp(26px, 3.2vw, 36px);
+      color: var(--pjb-green-deep); margin: 0; font-weight: 700; letter-spacing: -0.015em; line-height: 1.1;
+    }
+    .pjb-section-num { font-family: 'Fraunces', serif; font-style: italic; font-size: 14px; color: var(--pjb-pink-deep); font-weight: 500; }
+    .pjb-section-intro { font-size: 15px; color: var(--pjb-ink-soft); max-width: 680px; margin: 0 0 28px 0; }
+
+    /* ================ WHAT'S INSIDE ================ */
+    .pjb-halves { display: grid; grid-template-columns: 1fr 1fr; gap: 0; background: #fff; border: 2px solid var(--pjb-green); border-radius: 4px; overflow: hidden; }
+    @media (max-width: 760px) { .pjb-halves { grid-template-columns: 1fr; } }
+    .pjb-half { padding: 30px 28px; }
+    .pjb-half + .pjb-half { border-left: 1px solid var(--pjb-line); }
+    @media (max-width: 760px) { .pjb-half + .pjb-half { border-left: none; border-top: 1px solid var(--pjb-line); } }
+    .pjb-half.featured { background: var(--pjb-green-deep); color: #fff; }
+    .pjb-half-h { font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--pjb-green); font-weight: 700; margin: 0 0 6px 0; display: flex; align-items: center; gap: 10px; }
+    .pjb-half-h::before { content: ''; width: 18px; height: 2px; background: currentColor; }
+    .pjb-half.featured .pjb-half-h { color: var(--pjb-pink); }
+    .pjb-half-title { font-family: 'Fraunces', serif; font-size: 24px; font-weight: 700; line-height: 1.15; margin: 0 0 12px; color: var(--pjb-green-deep); }
+    .pjb-half.featured .pjb-half-title { color: #fff; }
+    .pjb-half p { font-size: 14px; color: var(--pjb-ink-soft); margin: 0 0 16px; }
+    .pjb-half.featured p { color: rgba(255,255,255,0.88); }
+    .pjb-half ul { list-style: none; padding: 0; margin: 0; }
+    .pjb-half ul li { font-size: 14px; color: var(--pjb-ink-soft); padding: 6px 0 6px 22px; line-height: 1.5; position: relative; }
+    .pjb-half ul li::before { content: '✦'; position: absolute; left: 0; color: var(--pjb-pink-deep); font-weight: 700; }
+    .pjb-half.featured ul li { color: rgba(255,255,255,0.92); }
+    .pjb-half.featured ul li::before { color: var(--pjb-gold); }
+
+    /* Still to be decided: stands out so it can't be published by accident */
+    .pjb-todo {
+      background: #FFF3A6; color: #5A4A00; font-weight: 700; font-style: normal;
+      padding: 0 4px; border-radius: 2px; outline: 1px dashed #B59B00;
+    }
+
+    /* ================ TWO WAYS ================ */
+    .pjb-ways { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media (max-width: 760px) { .pjb-ways { grid-template-columns: 1fr; } }
+    .pjb-way {
+      background: #fff; border: 2px solid var(--pjb-line); border-radius: 4px; padding: 26px 24px 22px;
+      position: relative; display: flex; flex-direction: column; gap: 12px;
+    }
+    .pjb-way::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; border-radius: 4px 4px 0 0; }
+    .pjb-way.free::before { background: var(--pjb-green); }
+    .pjb-way.sub::before { background: var(--pjb-pink-deep); }
+    .pjb-way-tag {
+      align-self: flex-start; font-size: 9.5px; letter-spacing: 0.13em; text-transform: uppercase;
+      padding: 3px 9px; font-weight: 800; color: #fff; border-radius: 2px;
+    }
+    .pjb-way.free .pjb-way-tag { background: var(--pjb-green); }
+    .pjb-way.sub .pjb-way-tag { background: var(--pjb-pink-deep); }
+    .pjb-way h3 { font-family: 'Fraunces', serif; font-size: 22px; color: var(--pjb-green-deep); margin: 0; font-weight: 700; line-height: 1.2; }
+    .pjb-way > p { font-size: 14px; color: var(--pjb-ink-soft); margin: 0; }
+    .pjb-way dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 8px 14px; font-size: 13.5px; }
+    .pjb-way dt { font-weight: 700; color: var(--pjb-green-deep); }
+    .pjb-way dd { margin: 0; color: var(--pjb-ink-soft); }
+    .pjb-way .pjb-btn { margin-top: auto; align-self: flex-start; }
+
+    /* ================ HOW IT WORKS ================ */
+    .pjb-steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+    @media (max-width: 760px) { .pjb-steps { grid-template-columns: 1fr; } }
+    .pjb-step {
+      background: #fff; border: 2px solid var(--pjb-line); border-radius: 4px; padding: 22px 20px;
+      display: grid; grid-template-columns: 44px 1fr; gap: 16px; align-items: start;
+    }
+    .pjb-step-num {
+      width: 44px; height: 44px; border-radius: 50%; background: var(--pjb-mint-deep);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Fraunces', serif; font-style: italic; font-size: 20px; color: var(--pjb-green-deep); font-weight: 700;
+    }
+    .pjb-step h3 { font-family: 'Fraunces', serif; font-size: 17px; color: var(--pjb-green-deep); margin: 0 0 4px; font-weight: 700; }
+    .pjb-step p { font-size: 13px; color: var(--pjb-ink-soft); margin: 0; line-height: 1.55; }
+
+    /* ================ REQUEST FORM ================ */
+    .pjb-form { background: #fff; border: 2px solid var(--pjb-green); border-radius: 4px; padding: 32px 30px; }
+    @media (max-width: 600px) { .pjb-form { padding: 24px 18px; } }
+    .pjb-privacy {
+      display: flex; gap: 12px; align-items: flex-start; background: var(--pjb-mint-soft);
+      border-left: 4px solid var(--pjb-green); padding: 14px 16px; margin: 0 0 28px; font-size: 13.5px; color: var(--pjb-ink-soft);
+    }
+    .pjb-privacy svg { width: 20px; height: 20px; flex-shrink: 0; color: var(--pjb-green); margin-top: 1px; }
+    .pjb-fieldset { border: none; padding: 0; margin: 0 0 30px; min-width: 0; }
+    .pjb-fieldset legend {
+      font-family: 'Fraunces', serif; font-size: 20px; font-weight: 700; color: var(--pjb-green-deep);
+      padding: 0; margin: 0 0 4px;
+    }
+    .pjb-fieldset-hint { font-size: 13px; color: var(--pjb-muted); margin: 0 0 16px; }
+    .pjb-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px 18px; }
+    @media (max-width: 640px) { .pjb-grid2 { grid-template-columns: 1fr; } }
+    .pjb-field { display: flex; flex-direction: column; gap: 6px; }
+    .pjb-field.full { grid-column: 1 / -1; }
+    .pjb-field label { font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 700; color: var(--pjb-ink-soft); }
+    .pjb-field label .opt { text-transform: none; letter-spacing: 0; font-weight: 500; color: var(--pjb-muted); }
+    .pjb-page input[type="text"], .pjb-page input[type="email"], .pjb-page textarea {
+      font-family: 'Montserrat', sans-serif; font-size: 15px; color: var(--pjb-ink);
+      background: var(--pjb-mint-soft); border: 2px solid var(--pjb-line); border-radius: 3px;
+      padding: 11px 13px; width: 100%; transition: border-color 0.15s ease, background 0.15s ease;
+    }
+    .pjb-page textarea { min-height: 84px; resize: vertical; }
+    .pjb-page input[type="text"]:focus, .pjb-page input[type="email"]:focus, .pjb-page textarea:focus { outline: none; border-color: var(--pjb-green); background: #fff; }
+
+    /* Joy picks: tappable chips */
+    .pjb-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+    .pjb-chip { position: relative; }
+    .pjb-chip input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+    .pjb-chip span {
+      display: inline-flex; align-items: center; gap: 6px; cursor: pointer;
+      font-size: 13px; font-weight: 600; color: var(--pjb-ink-soft);
+      background: #fff; border: 2px solid var(--pjb-line); border-radius: 20px; padding: 8px 15px;
+      transition: all 0.15s ease;
+    }
+    .pjb-chip span::before { content: '✦'; color: var(--pjb-line); transition: color 0.15s ease; }
+    .pjb-chip:hover span { border-color: var(--pjb-green); }
+    .pjb-chip input:checked + span { background: var(--pjb-green-deep); border-color: var(--pjb-green-deep); color: #fff; }
+    .pjb-chip input:checked + span::before { color: var(--pjb-gold); }
+    .pjb-chip input:focus-visible + span { outline: 3px solid var(--pjb-pink); outline-offset: 2px; }
+
+    /* Affirming items: a checkbox row that opens a size field */
+    .pjb-items { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    @media (max-width: 640px) { .pjb-items { grid-template-columns: 1fr; } }
+    .pjb-item { border: 2px solid var(--pjb-line); border-radius: 4px; background: #fff; transition: border-color 0.15s ease; }
+    .pjb-item.is-on { border-color: var(--pjb-pink-deep); }
+    .pjb-item > label { display: flex; align-items: center; gap: 12px; padding: 13px 14px; cursor: pointer; font-weight: 600; font-size: 14px; color: var(--pjb-ink); }
+    .pjb-item > label input { width: 18px; height: 18px; accent-color: var(--pjb-pink-deep); flex-shrink: 0; }
+    .pjb-item-detail { padding: 0 14px 14px 44px; display: flex; flex-direction: column; gap: 6px; }
+    .pjb-item-detail[hidden] { display: none; }
+    .pjb-item-detail label { font-size: 12px; font-weight: 600; color: var(--pjb-ink-soft); }
+    .pjb-item-note { font-size: 12px; color: var(--pjb-muted); margin: 2px 0 0; line-height: 1.5; }
+
+    .pjb-check { display: flex; align-items: flex-start; gap: 12px; font-size: 14px; color: var(--pjb-ink); cursor: pointer; }
+    .pjb-check input { width: 18px; height: 18px; margin-top: 2px; accent-color: var(--pjb-green-deep); flex-shrink: 0; }
+    .pjb-check small { display: block; font-size: 12.5px; color: var(--pjb-muted); }
+
+    .pjb-submitrow { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; padding-top: 6px; }
+    .pjb-submitrow p { font-size: 12.5px; color: var(--pjb-muted); margin: 0; max-width: 420px; }
+
+    .pjb-result { margin-top: 26px; border-top: 2px dashed var(--pjb-line); padding-top: 22px; }
+    .pjb-result[hidden] { display: none; }
+    .pjb-result h3 { font-family: 'Fraunces', serif; font-size: 20px; color: var(--pjb-green-deep); margin: 0 0 6px; }
+    .pjb-result p { font-size: 14px; color: var(--pjb-ink-soft); margin: 0 0 14px; }
+    .pjb-result a { color: var(--pjb-green); font-weight: 700; }
+    .pjb-result pre {
+      white-space: pre-wrap; word-break: break-word; font-family: ui-monospace, Menlo, monospace; font-size: 13px;
+      background: var(--pjb-mint-soft); border: 2px solid var(--pjb-line); border-radius: 3px; padding: 14px 16px; margin: 0 0 14px; color: var(--pjb-ink);
+      max-height: 320px; overflow: auto;
+    }
+    .pjb-copy {
+      font-family: 'Montserrat', sans-serif; font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 800;
+      background: var(--pjb-green-deep); color: #fff; border: none; border-radius: 3px; padding: 11px 18px; cursor: pointer;
+    }
+    .pjb-copy:hover { background: var(--pjb-pink-deep); }
+
+    /* ================ HELP FILL A BOX ================ */
+    .pjb-helps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    @media (max-width: 900px) { .pjb-helps { grid-template-columns: 1fr; } }
+    .pjb-help {
+      background: #fff; border: 2px solid var(--pjb-line); border-radius: 4px; padding: 24px 22px 20px;
+      position: relative; display: flex; flex-direction: column; gap: 10px;
+    }
+    .pjb-help::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; border-radius: 4px 4px 0 0; }
+    .pjb-help.art::before { background: var(--pjb-pink-deep); }
+    .pjb-help.items::before { background: var(--pjb-blue); }
+    .pjb-help.notes::before { background: var(--pjb-gold); }
+    .pjb-help h3 { font-family: 'Fraunces', serif; font-size: 19px; color: var(--pjb-green-deep); margin: 0; font-weight: 700; line-height: 1.2; }
+    .pjb-help p { font-size: 13.5px; color: var(--pjb-ink-soft); margin: 0; line-height: 1.55; }
+    .pjb-help a.pjb-help-link {
+      margin-top: auto; padding-top: 12px; font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 800;
+      color: var(--pjb-green-deep); text-decoration: none; display: inline-flex; align-items: center; gap: 8px;
+    }
+    .pjb-help a.pjb-help-link:hover { color: var(--pjb-pink-deep); }
+    .pjb-help a.pjb-help-link svg { width: 14px; height: 14px; }
+
+    /* ================ FINAL CTA ================ */
+    .pjb-finalcta { background: var(--pjb-green-deep); border-radius: 4px; padding: 52px 44px; text-align: center; position: relative; overflow: hidden; }
+    @media (max-width: 600px) { .pjb-finalcta { padding: 40px 22px; } }
+    .pjb-finalcta::before, .pjb-finalcta::after { content: ''; position: absolute; border-radius: 50%; opacity: 0.18; }
+    .pjb-finalcta::before { width: 260px; height: 260px; background: var(--pjb-pink); top: -100px; left: -80px; }
+    .pjb-finalcta::after { width: 180px; height: 180px; background: var(--pjb-blue); bottom: -60px; right: -40px; }
+    .pjb-finalcta-inner { position: relative; z-index: 1; }
+    .pjb-finalcta h3 { font-family: 'Fraunces', serif; font-size: clamp(28px, 4vw, 42px); color: #fff; margin: 0 0 14px 0; font-weight: 700; letter-spacing: -0.02em; line-height: 1.1; }
+    .pjb-finalcta h3 em { font-style: italic; color: var(--pjb-pink); font-weight: 500; }
+    .pjb-finalcta p { font-size: 15px; color: rgba(255,255,255,0.85); margin: 0 auto 28px; max-width: 520px; }
+
+    .pjb-page button:focus-visible,
+    .pjb-page a:focus-visible,
+    .pjb-page input[type="checkbox"]:focus-visible { outline: 3px solid var(--pjb-pink); outline-offset: 3px; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .pjb-page * { transition: none !important; animation: none !important; }
+    }
+  </style>
+
+  <!-- ================ HERO ================ -->
+  <section class="pjb-hero">
+    <div>
+      <p class="pjb-eyebrow">Pride and Joy Boxes</p>
+      <h1>Care for the body. <em>Joy for the spirit.</em></h1>
+      <p class="lede">
+        Pride and Joy Boxes are care packages and art boxes in one. Every box carries art and a little
+        sparkle to make queer joy something you can hold. Gender-affirming items go in when you ask for
+        them, in your size. Get one free when you need it, or subscribe.
+      </p>
+      <div class="pjb-ctarow">
+        <a class="pjb-btn pjb-btn-primary" href="#pjb-request">
+          Request a box
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 13l7 7 7-7"/></svg>
+        </a>
+        <a class="pjb-btn pjb-btn-secondary" href="#pjb-help">Help fill a box</a>
+      </div>
+    </div>
+
+    <aside class="pjb-boxcard" aria-label="What comes in a box">
+      <ul class="pjb-boxcard-list">
+        <li>
+          <span class="pjb-boxcard-icon" aria-hidden="true">✎</span>
+          <div><strong>Art to keep</strong><span>Prints, stickers, postcards and things to make.</span></div>
+        </li>
+        <li>
+          <span class="pjb-boxcard-icon" aria-hidden="true">✦</span>
+          <div><strong>A little sparkle</strong><span>Biodegradable glitter and small joyful extras.</span></div>
+        </li>
+        <li>
+          <span class="pjb-boxcard-icon" aria-hidden="true">♥</span>
+          <div><strong>A note from community</strong><span>Written by hand, for you.</span></div>
+        </li>
+        <li class="on-request">
+          <span class="pjb-boxcard-icon" aria-hidden="true">+</span>
+          <div><strong>Affirming items, if you ask</strong><span>Binders, tucking underwear, packers and more, in your size.</span></div>
+        </li>
+      </ul>
+    </aside>
+  </section>
+
+  <!-- ================ WHAT'S INSIDE ================ -->
+  <section class="pjb-section">
+    <header class="pjb-section-head">
+      <span class="pjb-section-num">01 / What&#8217;s inside</span>
+      <h2 class="pjb-section-title">Two halves of one box.</h2>
+    </header>
+    <p class="pjb-section-intro">
+      Every box has the joy half. The care half is yours to shape: tell us what would help and we pack it.
+      Ask for nothing affirming and you still get a full box.
+    </p>
+
+    <div class="pjb-halves">
+      <div class="pjb-half">
+        <p class="pjb-half-h">In every box</p>
+        <h3 class="pjb-half-title">Queer joy, packed to share.</h3>
+        <p>Art and play for the days you need a reminder that you are loved, celebrated and not alone.</p>
+        <ul>
+          <li>Art prints, postcards and stickers</li>
+          <li>Biodegradable glitter (BioGlitz and friends)</li>
+          <li>Coloring pages, craft kits or something to make</li>
+          <li>Zines and short reads by and for our community</li>
+          <li>A handwritten note</li>
+        </ul>
+      </div>
+      <div class="pjb-half featured">
+        <p class="pjb-half-h">When you ask</p>
+        <h3 class="pjb-half-title">Gender-affirming care, in your size.</h3>
+        <p>Pick only what you want. Your request stays between you and the people packing your box.</p>
+        <ul>
+          <li>Chest binders</li>
+          <li>Tucking underwear and gaffs</li>
+          <li>Packers</li>
+          <li>Breast forms</li>
+          <li>Makeup in your shades</li>
+          <li>Skincare and shaving supplies</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================ TWO WAYS ================ -->
+  <section class="pjb-section" id="pjb-ways">
+    <header class="pjb-section-head">
+      <span class="pjb-section-num">02 / Two ways to get one</span>
+      <h2 class="pjb-section-title">Free when you need it. Yours by subscription.</h2>
+    </header>
+    <p class="pjb-section-intro">Choose the one that fits you right now.</p>
+
+    <div class="pjb-ways">
+      <div class="pjb-way free">
+        <span class="pjb-way-tag">Free</span>
+        <h3>A free box</h3>
+        <p>For trans and queer folks who could use some care and some joy. It costs you nothing.</p>
+        <dl>
+          <dt>Who</dt><dd><span class="pjb-todo">[Who can request a free box, e.g. anywhere in the U.S., ages 18+]</span></dd>
+          <dt>How often</dt><dd><span class="pjb-todo">[How often free boxes go out]</span></dd>
+        </dl>
+        <a class="pjb-btn pjb-btn-secondary" href="#pjb-request" data-kind="free">Request a free box</a>
+      </div>
+      <div class="pjb-way sub">
+        <span class="pjb-way-tag">Subscription</span>
+        <h3>A subscription</h3>
+        <p>A box that keeps arriving, for yourself or as a gift to someone you love.</p>
+        <dl>
+          <dt>Price</dt><dd><span class="pjb-todo">[Price per box or per month]</span></dd>
+          <dt>How often</dt><dd><span class="pjb-todo">[How often subscription boxes go out, e.g. every month]</span></dd>
+          <dt>Paying</dt><dd><span class="pjb-todo">[How subscribers pay, e.g. a payment link we send when we write back]</span></dd>
+        </dl>
+        <a class="pjb-btn pjb-btn-primary" href="#pjb-request" data-kind="subscription">Start a subscription</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================ HOW IT WORKS ================ -->
+  <section class="pjb-section">
+    <header class="pjb-section-head">
+      <span class="pjb-section-num">03 / How it works</span>
+      <h2 class="pjb-section-title">Ask once. We keep you in mind.</h2>
+    </header>
+    <div class="pjb-steps">
+      <div class="pjb-step">
+        <span class="pjb-step-num">1</span>
+        <div><h3>Tell us about you</h3><p>Fill in the request below: what lights you up, and any affirming items you want, with sizes.</p></div>
+      </div>
+      <div class="pjb-step">
+        <span class="pjb-step-num">2</span>
+        <div><h3>Send it by email</h3><p>The form turns your answers into an email to us. You see every word before you send it.</p></div>
+      </div>
+      <div class="pjb-step">
+        <span class="pjb-step-num">3</span>
+        <div><h3>Your box is on its way</h3><p>We write back to confirm. To change a size or stop your boxes, reply to that email any time.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================ REQUEST FORM ================ -->
+  <section class="pjb-section" id="pjb-request">
+    <header class="pjb-section-head">
+      <span class="pjb-section-num">04 / Request a box</span>
+      <h2 class="pjb-section-title">Make it yours.</h2>
+    </header>
+
+    <form class="pjb-form" id="pjb-form" novalidate>
+      <p class="pjb-privacy">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+        <span>Nothing you type here is saved on this website. The button at the bottom opens an email to us with your answers filled in, and nothing is sent until you press send in your own email app.</span>
+      </p>
+
+      <fieldset class="pjb-fieldset">
+        <legend>Which box?</legend>
+        <div class="pjb-chips" style="margin-top:10px">
+          <label class="pjb-chip"><input type="radio" name="kind" value="Free box" checked><span>Free box</span></label>
+          <label class="pjb-chip"><input type="radio" name="kind" value="Subscription"><span>Subscription</span></label>
+        </div>
+      </fieldset>
+
+      <fieldset class="pjb-fieldset">
+        <legend>About you</legend>
+        <p class="pjb-fieldset-hint">The name you want on your box is the name we use. No legal names needed.</p>
+        <div class="pjb-grid2">
+          <div class="pjb-field">
+            <label for="pjb-name">Name for your box</label>
+            <input type="text" id="pjb-name" name="name" autocomplete="nickname" required>
+          </div>
+          <div class="pjb-field">
+            <label for="pjb-pronouns">Pronouns <span class="opt">(optional)</span></label>
+            <input type="text" id="pjb-pronouns" name="pronouns">
+          </div>
+          <div class="pjb-field">
+            <label for="pjb-email">Email we can reply to</label>
+            <input type="email" id="pjb-email" name="email" autocomplete="email" required>
+          </div>
+          <div class="pjb-field full">
+            <label for="pjb-address">Mailing address <span class="opt">(optional now, we can get it when we write back)</span></label>
+            <textarea id="pjb-address" name="address" autocomplete="street-address" rows="3"></textarea>
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset class="pjb-fieldset">
+        <legend>What brings you joy?</legend>
+        <p class="pjb-fieldset-hint">Tap as many as you like. We use these to choose the art and extras.</p>
+        <!-- EDIT JOY PICKS // value is what appears in the email -->
+        <div class="pjb-chips" role="group" aria-label="Joy picks">
+          <label class="pjb-chip"><input type="checkbox" name="joy" value="Stickers"><span>Stickers</span></label>
+          <label class="pjb-chip"><input type="checkbox" name="joy" value="Art prints and postcards"><span>Art prints &amp; postcards</span></label>
+          <label class="pjb-chip"><input type="checkbox" name="joy" value="Biodegradable glitter"><span>Glitter</span></label>
+          <label class="pjb-chip"><input type="checkbox" name="joy" value="Coloring and craft kits"><span>Coloring &amp; crafts</span></label>
+          <label class="pjb-chip"><input type="checkbox" name="joy" value="Zines and reading"><span>Zines &amp; reading</span></label>
+          <label class="pjb-chip"><input type="checkbox" name="joy" value="Surprise me"><span>Surprise me</span></label>
+        </div>
+        <div class="pjb-field full" style="margin-top:16px">
+          <label for="pjb-faves">Favorite colors, flags, animals, fandoms <span class="opt">(optional)</span></label>
+          <input type="text" id="pjb-faves" name="faves" placeholder="Lavender, frogs, the bi flag, anything with moons">
+        </div>
+      </fieldset>
+
+      <fieldset class="pjb-fieldset">
+        <legend>Gender-affirming items</legend>
+        <p class="pjb-fieldset-hint">Only if you want them. Check an item to tell us your size or preferences.</p>
+        <!-- EDIT ITEMS // data-label is what appears in the email -->
+        <div class="pjb-items">
+          <div class="pjb-item" data-label="Chest binder">
+            <label><input type="checkbox"> Chest binder</label>
+            <div class="pjb-item-detail" hidden>
+              <label for="pjb-d-binder">Size, or chest measurement in inches</label>
+              <input type="text" id="pjb-d-binder" placeholder="e.g. Medium, or 38 in, half-length">
+              <p class="pjb-item-note">Measure around the fullest part of your chest. Bind for no more than about 8 hours a day, never sleep in a binder, and never bind with elastic bandages or duct tape.</p>
+            </div>
+          </div>
+          <div class="pjb-item" data-label="Tucking underwear or gaff">
+            <label><input type="checkbox"> Tucking underwear or gaff</label>
+            <div class="pjb-item-detail" hidden>
+              <label for="pjb-d-tuck">Underwear size</label>
+              <input type="text" id="pjb-d-tuck" placeholder="e.g. Large">
+            </div>
+          </div>
+          <div class="pjb-item" data-label="Packer">
+            <label><input type="checkbox"> Packer</label>
+            <div class="pjb-item-detail" hidden>
+              <label for="pjb-d-packer">Size and skin tone preference</label>
+              <input type="text" id="pjb-d-packer" placeholder="e.g. small, medium-brown">
+            </div>
+          </div>
+          <div class="pjb-item" data-label="Breast forms">
+            <label><input type="checkbox"> Breast forms</label>
+            <div class="pjb-item-detail" hidden>
+              <label for="pjb-d-forms">Bra size or the size you want</label>
+              <input type="text" id="pjb-d-forms" placeholder="e.g. 38B">
+            </div>
+          </div>
+          <div class="pjb-item" data-label="Makeup">
+            <label><input type="checkbox"> Makeup</label>
+            <div class="pjb-item-detail" hidden>
+              <label for="pjb-d-makeup">Your shades or what you want to try</label>
+              <input type="text" id="pjb-d-makeup" placeholder="e.g. deep warm foundation, beard-shadow concealer">
+            </div>
+          </div>
+          <div class="pjb-item" data-label="Skincare and shaving">
+            <label><input type="checkbox"> Skincare and shaving</label>
+            <div class="pjb-item-detail" hidden>
+              <label for="pjb-d-skin">Anything we should know</label>
+              <input type="text" id="pjb-d-skin" placeholder="e.g. sensitive skin, face and legs">
+            </div>
+          </div>
+          <div class="pjb-item" data-label="Something else">
+            <label><input type="checkbox"> Something else</label>
+            <div class="pjb-item-detail" hidden>
+              <label for="pjb-d-other">What would help?</label>
+              <input type="text" id="pjb-d-other">
+            </div>
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset class="pjb-fieldset">
+        <legend>Packaging and anything else</legend>
+        <label class="pjb-check" style="margin-bottom:18px">
+          <input type="checkbox" name="plain">
+          <span>Send it in a plain outer box
+            <small>Ask for this if someone else might open your mail. We won&#8217;t put Pride and Joy, or what&#8217;s inside, on the outside.</small>
+          </span>
+        </label>
+        <div class="pjb-field full">
+          <label for="pjb-notes">Anything else you want us to know <span class="opt">(optional)</span></label>
+          <textarea id="pjb-notes" name="notes" rows="3"></textarea>
+        </div>
+      </fieldset>
+
+      <div class="pjb-submitrow">
+        <button class="pjb-btn pjb-btn-primary" type="submit">
+          Write my request email
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z"/><path d="M4 6l8 7 8-7"/></svg>
+        </button>
+        <p id="pjb-formmsg" role="status" aria-live="polite">Your email app will open with everything filled in.</p>
+      </div>
+
+      <div class="pjb-result" id="pjb-result" hidden>
+        <h3>Your request is ready.</h3>
+        <p>Your email app should have opened with this filled in. If it didn&#8217;t, copy the text below and email it to <a id="pjb-maillink" href="#"></a>.</p>
+        <pre id="pjb-text"></pre>
+        <button class="pjb-copy" type="button" id="pjb-copy">Copy request</button>
+      </div>
+    </form>
+  </section>
+
+  <!-- ================ HELP FILL A BOX ================ -->
+  <section class="pjb-section" id="pjb-help">
+    <header class="pjb-section-head">
+      <span class="pjb-section-num">05 / Help fill a box</span>
+      <h2 class="pjb-section-title">Joy is a group project.</h2>
+    </header>
+    <p class="pjb-section-intro">
+      Pride and Joy Boxes are filled by community. Write to us before you send anything, so we can tell you
+      what is needed most and where to send it.
+    </p>
+    <div class="pjb-helps">
+      <div class="pjb-help art">
+        <h3>Make art for the boxes</h3>
+        <p>Artists, crafters and zine makers: prints, stickers, postcards and small handmade pieces are the heart of every box.</p>
+        <a class="pjb-help-link" href="mailto:transpire@transwellconnects.com?subject=Pride%20and%20Joy%20Boxes%3A%20I%20want%20to%20make%20art">
+          Offer your art
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+        </a>
+      </div>
+      <div class="pjb-help items">
+        <h3>Give items</h3>
+        <p>Affirming gear in a range of sizes, unopened makeup and skincare, craft supplies and biodegradable glitter.</p>
+        <a class="pjb-help-link" href="mailto:transpire@transwellconnects.com?subject=Pride%20and%20Joy%20Boxes%3A%20I%20want%20to%20give%20items">
+          Ask what&#8217;s needed
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+        </a>
+      </div>
+      <div class="pjb-help notes">
+        <h3>Write notes</h3>
+        <p>A few kind, handwritten words go in every box. Trans elders, friends, family and allies are all welcome to write.</p>
+        <a class="pjb-help-link" href="mailto:transpire@transwellconnects.com?subject=Pride%20and%20Joy%20Boxes%3A%20I%20want%20to%20write%20notes">
+          Write a note
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================ FINAL CTA ================ -->
+  <section class="pjb-finalcta">
+    <div class="pjb-finalcta-inner">
+      <h3>You deserve to be cared for. <em>And celebrated.</em></h3>
+      <p>Ask for a box for yourself, or tell a friend who could use one.</p>
+      <a class="pjb-btn pjb-btn-primary" href="#pjb-request">
+        Request a box
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 11l7-7 7 7"/></svg>
+      </a>
+    </div>
+  </section>
+
+</div>
+
+<script>
+(function() {
+  // REQUEST EMAIL //
+  var REQUEST_EMAIL = 'transpire@transwellconnects.com';
+
+  var root = document.querySelector('.pjb-page');
+  if (!root || root._pjbInit) return;
+  root._pjbInit = true;
+
+  var form = root.querySelector('#pjb-form');
+  var msg = root.querySelector('#pjb-formmsg');
+  var result = root.querySelector('#pjb-result');
+  var pre = root.querySelector('#pjb-text');
+  var mailLink = root.querySelector('#pjb-maillink');
+  mailLink.href = 'mailto:' + REQUEST_EMAIL;
+  mailLink.textContent = REQUEST_EMAIL;
+
+  // "Request a free box" / "Start a subscription" pick that box in the form.
+  root.querySelectorAll('[data-kind]').forEach(function(link) {
+    link.addEventListener('click', function() {
+      var value = link.dataset.kind === 'subscription' ? 'Subscription' : 'Free box';
+      root.querySelector('input[name="kind"][value="' + value + '"]').checked = true;
+    });
+  });
+
+  // Checking an affirming item opens its size field.
+  root.querySelectorAll('.pjb-item').forEach(function(item) {
+    var box = item.querySelector('label input[type="checkbox"]');
+    var detail = item.querySelector('.pjb-item-detail');
+    box.addEventListener('change', function() {
+      item.classList.toggle('is-on', box.checked);
+      if (box.checked) {
+        detail.removeAttribute('hidden');
+        detail.querySelector('input').focus();
+      } else {
+        detail.setAttribute('hidden', '');
+      }
+    });
+  });
+
+  function val(id) { return root.querySelector(id).value.trim(); }
+
+  function buildRequest() {
+    var lines = ['Pride and Joy Box request', ''];
+    lines.push('Box: ' + root.querySelector('input[name="kind"]:checked').value);
+    lines.push('Name for the box: ' + val('#pjb-name'));
+    if (val('#pjb-pronouns')) lines.push('Pronouns: ' + val('#pjb-pronouns'));
+    lines.push('Email: ' + val('#pjb-email'));
+    lines.push('Mailing address: ' + (val('#pjb-address') ? '\n' + val('#pjb-address') : 'I’ll send it when you write back'));
+
+    var joy = [].map.call(root.querySelectorAll('input[name="joy"]:checked'), function(c) { return c.value; });
+    lines.push('', 'What brings me joy: ' + (joy.length ? joy.join(', ') : 'Surprise me'));
+    if (val('#pjb-faves')) lines.push('Favorite things: ' + val('#pjb-faves'));
+
+    var items = [];
+    root.querySelectorAll('.pjb-item').forEach(function(item) {
+      if (!item.querySelector('label input').checked) return;
+      var detail = item.querySelector('.pjb-item-detail input').value.trim();
+      items.push('- ' + item.dataset.label + (detail ? ': ' + detail : ''));
+    });
+    lines.push('', 'Gender-affirming items:');
+    lines.push(items.length ? items.join('\n') : '- None this time, just joy');
+
+    lines.push('', 'Packaging: ' + (root.querySelector('input[name="plain"]').checked ? 'Plain outer box, please' : 'Any box is fine'));
+    if (val('#pjb-notes')) lines.push('', 'Anything else:', val('#pjb-notes'));
+    return lines.join('\n');
+  }
+
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    var name = root.querySelector('#pjb-name');
+    var email = root.querySelector('#pjb-email');
+    var missing = !name.value.trim() ? name : !email.value.trim() || !email.checkValidity() ? email : null;
+    if (missing) {
+      msg.textContent = missing === name
+        ? 'Add the name you want on your box, then try again.'
+        : 'Add an email we can reply to, then try again.';
+      missing.focus();
+      return;
+    }
+    var body = buildRequest();
+    var kind = root.querySelector('input[name="kind"]:checked').value;
+    var subject = 'Pride and Joy Box request (' + kind.toLowerCase() + '): ' + name.value.trim();
+    pre.textContent = body;
+    result.removeAttribute('hidden');
+    msg.textContent = 'Your request is ready. Check your email app.';
+    window.location.href = 'mailto:' + REQUEST_EMAIL +
+      '?subject=' + encodeURIComponent(subject) +
+      '&body=' + encodeURIComponent(body);
+  });
+
+  root.querySelector('#pjb-copy').addEventListener('click', function() {
+    var btn = this;
+    var text = 'To: ' + REQUEST_EMAIL + '\n\n' + pre.textContent;
+    function done() { btn.textContent = 'Copied'; setTimeout(function() { btn.textContent = 'Copy request'; }, 2000); }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(done, function() { selectPre(); });
+    } else {
+      selectPre();
+    }
+    function selectPre() {
+      var range = document.createRange();
+      range.selectNodeContents(pre);
+      var sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
+      btn.textContent = 'Press Ctrl+C or ⌘C to copy';
+    }
+  });
+})();
+</script>

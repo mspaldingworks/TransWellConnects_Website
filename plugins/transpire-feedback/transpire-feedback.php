@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       Transpire Feedback
  * Description:       Live audience reactions and a feedback form for Transpire listening sessions. Organizers start and stop recording with one button; every reaction is saved with its time, so they can see how the room responded across the session.
- * Version:           1.1.0
+ * Version:           1.2.0
  * Requires at least: 6.0
  * Requires PHP:      7.4
  * Author:            Transpire
@@ -10,7 +10,8 @@
  * Text Domain:       transpire-feedback
  *
  * Shortcodes:
- *   [transpire_reactions]  the emoji buttons the audience taps during the session
+ *   [transpire_reactions]  the emoji buttons the audience taps during the session,
+ *                          with a chart of the room's reactions over time
  *   [transpire_feedback]   the written feedback form
  *
  * The Start / Stop button, results and settings live under "Transpire
@@ -20,10 +21,12 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'TRANSPIRE_FB_VERSION', '1.1.0' );
+define( 'TRANSPIRE_FB_VERSION', '1.2.0' );
 define( 'TRANSPIRE_FB_DB_VERSION', '2' );
-// A run nobody stops is closed this long after it started, so a forgotten rehearsal cannot leave the buttons open overnight.
+// A run nobody stops is closed this long after it started, so a forgotten session cannot leave the buttons open overnight.
 define( 'TRANSPIRE_FB_MAX_RUN', 4 * HOUR_IN_SECONDS );
+// Rehearsals may run all day for demos and testing; the real session's scheduled start still closes one.
+define( 'TRANSPIRE_FB_MAX_REHEARSAL', DAY_IN_SECONDS );
 define( 'TRANSPIRE_FB_FILE', __FILE__ );
 
 /* -------------------------------------------------------------------------
@@ -142,8 +145,9 @@ function transpire_fb_active_run() {
 	global $wpdb;
 	$table = transpire_fb_table( 'runs' );
 	$run   = $wpdb->get_row( "SELECT * FROM {$table} WHERE ended_ts = 0 ORDER BY id DESC LIMIT 1" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name only.
-	if ( $run && time() - (int) $run->started_ts >= TRANSPIRE_FB_MAX_RUN ) {
-		$wpdb->update( $table, array( 'ended_ts' => (int) $run->started_ts + TRANSPIRE_FB_MAX_RUN ), array( 'id' => (int) $run->id ), array( '%d' ), array( '%d' ) );
+	$max   = $run && (int) $run->is_test ? TRANSPIRE_FB_MAX_REHEARSAL : TRANSPIRE_FB_MAX_RUN;
+	if ( $run && time() - (int) $run->started_ts >= $max ) {
+		$wpdb->update( $table, array( 'ended_ts' => (int) $run->started_ts + $max ), array( 'id' => (int) $run->id ), array( '%d' ), array( '%d' ) );
 		return null;
 	}
 	return $run;
@@ -385,6 +389,15 @@ function transpire_fb_register_routes() {
 	);
 	register_rest_route(
 		'transpire/v1',
+		'/timeline',
+		array(
+			'methods'             => 'GET',
+			'callback'            => 'transpire_fb_rest_timeline',
+			'permission_callback' => '__return_true',
+		)
+	);
+	register_rest_route(
+		'transpire/v1',
 		'/react',
 		array(
 			'methods'             => 'POST',
@@ -440,6 +453,87 @@ function transpire_fb_rest_status() {
 			),
 		)
 	);
+}
+
+/**
+ * The room's reactions over time, for the chart under the buttons: the run
+ * being recorded, or once the session is over, the last real run. Totals per
+ * reaction per column only; nothing about any one device.
+ */
+function transpire_fb_timeline() {
+	global $wpdb;
+	$state = transpire_fb_state();
+	$run   = $state['run'];
+	if ( ! $run && 'after' === $state['phase'] && $state['run_id'] ) {
+		$run = transpire_fb_get_run( $state['run_id'] );
+	}
+	if ( ! $run ) {
+		return array( 'run' => 0 );
+	}
+
+	// Every phone on the page asks every few seconds, so one answer serves them all for a moment.
+	$cache = 'transpire_fb_timeline_' . (int) $run->id;
+	$data  = get_transient( $cache );
+	if ( is_array( $data ) ) {
+		return $data;
+	}
+
+	$started = (int) $run->started_ts;
+	$ended   = (int) $run->ended_ts;
+	$end     = max( $ended ? $ended : time(), $started + 5 * MINUTE_IN_SECONDS );
+
+	// The finest columns that keep the chart to 60 of them, so it still reads on a phone.
+	$bucket = HOUR_IN_SECONDS;
+	foreach ( array( 10, 15, 30, 60, 120, 300, 600, 900, 1800 ) as $size ) {
+		if ( ( $end - $started ) / $size <= 60 ) {
+			$bucket = $size;
+			break;
+		}
+	}
+	$start   = (int) floor( $started / $bucket ) * $bucket;
+	$buckets = max( 1, (int) ceil( ( $end - $start ) / $bucket ) );
+
+	$counts = array();
+	foreach ( array_keys( transpire_fb_reactions() ) as $key ) {
+		$counts[ $key ] = array_fill( 0, $buckets, 0 );
+	}
+	$table = transpire_fb_table( 'reactions' );
+	$total = 0;
+	$rows  = $wpdb->get_results( $wpdb->prepare( "SELECT reaction_key, FLOOR((created_ts - %d) / %d) AS bucket, COUNT(*) AS total FROM {$table} WHERE run_id = %d GROUP BY reaction_key, bucket", $start, $bucket, (int) $run->id ) ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name only.
+	foreach ( (array) $rows as $row ) {
+		$index = (int) $row->bucket;
+		if ( isset( $counts[ $row->reaction_key ][ $index ] ) ) {
+			$counts[ $row->reaction_key ][ $index ] = (int) $row->total;
+			$total                                 += (int) $row->total;
+		}
+	}
+
+	$series = array();
+	foreach ( $counts as $key => $values ) {
+		$series[] = array(
+			'key'    => $key,
+			'counts' => $values,
+		);
+	}
+
+	$window = transpire_fb_window();
+	$data   = array(
+		'run'     => (int) $run->id,
+		'open'    => ! $ended,
+		'start'   => $start,
+		'end'     => $end,
+		'bucket'  => $bucket,
+		'buckets' => $buckets,
+		'tz'      => $window['tz']->getName(),
+		'total'   => $total,
+		'series'  => $series,
+	);
+	set_transient( $cache, $data, $ended ? MINUTE_IN_SECONDS : 4 );
+	return $data;
+}
+
+function transpire_fb_rest_timeline() {
+	return transpire_fb_response( transpire_fb_timeline() );
 }
 
 function transpire_fb_rest_react( WP_REST_Request $request ) {

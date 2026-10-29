@@ -94,6 +94,197 @@
     if (!document.hidden) { loadStatus(); }
   });
 
+  function clock(ts, tz, seconds) {
+    var options = { hour: 'numeric', minute: '2-digit' };
+    if (seconds) { options.second = '2-digit'; }
+    try {
+      options.timeZone = tz;
+      return new Date(ts * 1000).toLocaleTimeString([], options);
+    } catch (e) {
+      delete options.timeZone; // an unknown zone name
+      return new Date(ts * 1000).toLocaleTimeString([], options);
+    }
+  }
+
+  /* -------------------------------------------------------------------- chart */
+
+  // The room's reactions over time, under the buttons. One row of columns per
+  // reaction, all to the same height scale, with every reaction together on
+  // top. Tap or point at a column to read its numbers.
+  function RoomChart() {
+    var SVG = 'http://www.w3.org/2000/svg';
+    var box = el('div', 'tspr-fb-chart');
+    var data = null;
+    var timer = null;
+    var busy = false;
+    var wanted = false;
+    var open = false;
+
+    function unit(bucket) {
+      if (bucket < 60) { return bucket + ' seconds'; }
+      if (bucket === 60) { return 'minute'; }
+      if (bucket < 3600) { return (bucket / 60) + ' minutes'; }
+      return 'hour';
+    }
+
+    function plot(counts, max, label) {
+      var svg = document.createElementNS(SVG, 'svg');
+      svg.setAttribute('class', 'tspr-fb-plot');
+      svg.setAttribute('viewBox', '0 0 ' + (counts.length * 10) + ' 30');
+      svg.setAttribute('preserveAspectRatio', 'none');
+      svg.setAttribute('role', 'img');
+      svg.setAttribute('aria-label', label);
+      svg.setAttribute('focusable', 'false');
+      counts.forEach(function (count, index) {
+        if (!count) { return; }
+        var height = Math.max(2, count / max * 29);
+        var bar = document.createElementNS(SVG, 'rect');
+        bar.setAttribute('x', index * 10 + 1.5);
+        bar.setAttribute('width', 7);
+        bar.setAttribute('y', 30 - height);
+        bar.setAttribute('height', height);
+        svg.appendChild(bar);
+      });
+      return svg;
+    }
+
+    function row(className, name, total, counts, max, label) {
+      var line = el('div', 'tspr-fb-chart-row' + (className ? ' ' + className : ''));
+      var head = el('div', 'tspr-fb-chart-name');
+      var mark = el('span', 'tspr-fb-chart-mark', name);
+      mark.setAttribute('aria-hidden', 'true');
+      head.appendChild(mark);
+      var number = el('span', 'tspr-fb-chart-total', String(total));
+      number.setAttribute('aria-hidden', 'true');
+      head.appendChild(number);
+      line.appendChild(head);
+      line.appendChild(plot(counts, max, label));
+      return line;
+    }
+
+    function draw() {
+      box.textContent = '';
+      if (!data || !data.run || !status) { box.hidden = true; return; }
+      box.hidden = false;
+
+      var byKey = {};
+      status.reactions.forEach(function (reaction) { byKey[reaction.key] = reaction; });
+      var series = data.series.filter(function (item) { return byKey[item.key]; });
+      var all = [];
+      var max = 1;
+      series.forEach(function (item) {
+        item.counts.forEach(function (count, index) {
+          all[index] = (all[index] || 0) + count;
+          max = Math.max(max, count);
+        });
+      });
+      var allMax = Math.max.apply(null, [1].concat(all));
+
+      box.appendChild(el('p', 'tspr-fb-chart-title', data.open ? 'The room so far' : 'How the room responded'));
+      if (!data.total) {
+        box.appendChild(el('p', 'tspr-fb-chart-sub', data.open ? 'No reactions yet. Each tap shows up here within a few seconds.' : 'No reactions were sent.'));
+        return;
+      }
+      box.appendChild(el('p', 'tspr-fb-chart-sub', data.total + (data.total === 1 ? ' reaction' : ' reactions') + ', counted per ' + unit(data.bucket)));
+
+      var rows = el('div', 'tspr-fb-chart-rows');
+      rows.appendChild(row('is-all', 'All', data.total, all, allMax, 'All reactions over time: ' + data.total + ' in total'));
+      series.forEach(function (item) {
+        var reaction = byKey[item.key];
+        var total = item.counts.reduce(function (sum, count) { return sum + count; }, 0);
+        rows.appendChild(row('', reaction.emoji, total, item.counts, max, reaction.label + ' over time: ' + total + ' in total'));
+      });
+
+      var axis = el('div', 'tspr-fb-chart-row tspr-fb-chart-axis');
+      axis.setAttribute('aria-hidden', 'true');
+      axis.appendChild(el('div', 'tspr-fb-chart-name'));
+      var ends = el('div', 'tspr-fb-chart-ends');
+      ends.appendChild(el('span', null, clock(data.start, data.tz)));
+      ends.appendChild(el('span', null, data.open ? 'now' : clock(data.end, data.tz)));
+      axis.appendChild(ends);
+      rows.appendChild(axis);
+
+      var band = el('div', 'tspr-fb-chart-band');
+      band.hidden = true;
+      rows.appendChild(band);
+      box.appendChild(rows);
+
+      var readout = el('p', 'tspr-fb-chart-readout', 'Tap a column to see its numbers.');
+      readout.setAttribute('aria-hidden', 'true');
+      box.appendChild(readout);
+
+      function point(event) {
+        var plotNode = rows.querySelector('.tspr-fb-plot');
+        var plotBox = plotNode.getBoundingClientRect();
+        var step = plotBox.width / data.buckets;
+        var index = Math.floor((event.clientX - plotBox.left) / step);
+        if (index < 0 || index >= data.buckets) { return; }
+        var from = data.start + index * data.bucket;
+        var parts = [];
+        series.forEach(function (item) {
+          if (item.counts[index]) { parts.push(byKey[item.key].emoji + ' ' + item.counts[index]); }
+        });
+        readout.textContent = clock(from, data.tz, data.bucket < 60) + '–' + clock(from + data.bucket, data.tz, data.bucket < 60) + ': ' +
+          (parts.length ? parts.join('  ') + '  (' + (all[index] || 0) + ' in all)' : 'no reactions');
+        band.style.left = (plotBox.left - rows.getBoundingClientRect().left + index * step) + 'px';
+        band.style.width = Math.max(step, 2) + 'px';
+        band.hidden = false;
+      }
+      rows.addEventListener('pointermove', point);
+      rows.addEventListener('click', point);
+    }
+
+    function fetchTimeline() {
+      clearTimeout(timer);
+      if (!wanted) { return; }
+      if (busy || document.hidden) { later(); return; }
+      busy = true;
+      fetch(endpoint('timeline'), { credentials: 'omit' })
+        .then(function (response) { return response.json(); })
+        .then(function (next) {
+          data = next;
+          draw();
+          // Stopped from WP Admin: tell the buttons now rather than at the next status check.
+          if (open && (!next.run || !next.open)) { loadStatus(); }
+        })
+        .catch(function () { /* keep the last drawing; try again next time */ })
+        .then(function () { busy = false; later(); });
+    }
+
+    function later() {
+      clearTimeout(timer);
+      if (wanted && open) { timer = setTimeout(fetchTimeline, 10000); }
+    }
+
+    this.node = box;
+
+    // Open: redraw every 10 seconds. After the session: draw once.
+    this.show = function (isOpen) {
+      var changed = !wanted || open !== isOpen;
+      wanted = true;
+      open = isOpen;
+      draw();
+      if (changed) { fetchTimeline(); }
+    };
+
+    this.hide = function () {
+      wanted = false;
+      clearTimeout(timer);
+      data = null;
+      draw();
+    };
+
+    // Soon after this device taps, so people see their own reaction land.
+    this.nudge = function () {
+      clearTimeout(timer);
+      timer = setTimeout(fetchTimeline, 1500);
+    };
+
+    document.addEventListener('visibilitychange', function () {
+      if (!document.hidden && wanted && open) { fetchTimeline(); }
+    });
+  }
+
   function header(root, s, title) {
     var head = el('div', 'tspr-fb-head');
     head.appendChild(el('p', 'tspr-fb-eyebrow', s.session));
@@ -114,6 +305,7 @@
     var tally = null;
     var bar = null;
     var sent = 0;
+    var chart = new RoomChart();
 
     try { sent = parseInt(window.sessionStorage.getItem('tsprFbSent') || '0', 10) || 0; } catch (e) { /* ignore */ }
 
@@ -161,6 +353,7 @@
           try { window.sessionStorage.setItem('tsprFbSent', String(sent)); } catch (e) { /* ignore */ }
           say('Sent: ' + reaction.label);
           showTally();
+          chart.nudge();
         } else if (result.status === 429 && result.data.code === 'cooldown') {
           lock(result.data.retry_after);
           say('One moment, then you can react again.');
@@ -205,7 +398,11 @@
             link.href = '#transpire-feedback';
             root.appendChild(link);
           }
+          root.appendChild(chart.node);
+          chart.show(false);
+          return;
         }
+        chart.hide();
         return;
       }
 
@@ -242,7 +439,10 @@
       root.appendChild(tally);
       showTally();
 
-      root.appendChild(el('p', 'tspr-fb-note', 'Reactions are anonymous. Only the organizers see them, as totals over time.'));
+      root.appendChild(chart.node);
+      chart.show(true);
+
+      root.appendChild(el('p', 'tspr-fb-note', 'Reactions are anonymous. Everyone on this page sees the room\'s totals over time, never who sent what.'));
     };
   }
 

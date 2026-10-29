@@ -51,9 +51,9 @@ It gives the audience two things, each placed on a page with a Shortcode block:
 
 Organizers run it from WP Admin under **Transpire Feedback → Live session**, which has one button. **Start** opens the reaction buttons for everyone on the page (open phones notice within about 15 seconds) and shows a chart of the responses that redraws every 5 seconds. The same button becomes **Stop**, which closes the reactions and saves that start-to-stop as its own record. Each record has a report (a single page to read, print or download, with the timeline, the busiest moments, each reaction's share, the written feedback grouped by question, and reflection questions) and CSV downloads. Tick **Rehearsal** before Start to keep practice taps apart from the real results.
 
-As a safety net, if nobody has pressed Start by the scheduled start time, recording starts by itself (a rehearsal still running then is stopped first). A run nobody stops closes itself after 4 hours.
+As a safety net, if nobody has pressed Start by the scheduled start time, recording starts by itself (a rehearsal still running then is stopped first). A run nobody stops closes itself after 4 hours, or after 24 hours for a rehearsal, so a demo can stay open all day.
 
-**Results** shows everything for a session, or any one record. The audience never sees anyone else's reactions.
+**Results** shows everything for a session, or any one record. Under the buttons, everyone on the page sees a chart of the room's reactions over time (totals per reaction, never who sent what), refreshed every 10 seconds while a run is recording; once the session is over it shows the last real run.
 
 Reactions and feedback are anonymous. No names, IP addresses or browser details are stored. Each device gets a random id, kept only as a scrambled code, so the plugin can pace taps and count devices. An email address is stored only if someone chooses to type one into the form.
 

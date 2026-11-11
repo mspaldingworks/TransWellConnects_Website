@@ -6,10 +6,13 @@
 
   The whole file goes in ONE Custom HTML block on its own page.
 
-  The request form saves nothing on the website. Pressing the
-  button opens the visitor's email app with their answers filled
-  in, addressed to REQUEST_EMAIL below. If no email app opens,
-  the page shows the same text with a Copy button.
+  The request form sends each request to the Pride and Joy Boxes
+  plugin (plugins/pride-joy-boxes), which saves it for the team
+  under "Pride & Joy Boxes" in WP Admin. The TransWell app sends
+  to the same place, so both land in one list. If the request
+  cannot be saved (the plugin is off, or the visitor is offline),
+  the page falls back to an email addressed to REQUEST_EMAIL
+  below, with the same answers filled in and a Copy button.
 
   PLACEHOLDERS: the [bracketed] text with a yellow highlight
   (class "pjb-todo") is still to be decided: price, how often
@@ -17,7 +20,7 @@
   pjb-todo and replace each one, span and all, before publishing.
 
   Editable blocks:
-    // REQUEST EMAIL //   — where requests go
+    // REQUEST EMAIL //   — where requests go if saving fails
     // EDIT JOY PICKS //  — the art and sparkle options (HTML)
     // EDIT ITEMS //      — the gender-affirming options (HTML)
   ============================================================
@@ -273,6 +276,9 @@
     .pjb-submitrow { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; padding-top: 6px; }
     .pjb-submitrow p { font-size: 12.5px; color: var(--pjb-muted); margin: 0; max-width: 420px; }
 
+    .pjb-btn[disabled] { opacity: .6; cursor: default; }
+    .pjb-hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+
     .pjb-result { margin-top: 26px; border-top: 2px dashed var(--pjb-line); padding-top: 22px; }
     .pjb-result[hidden] { display: none; }
     .pjb-result h3 { font-family: 'Fraunces', serif; font-size: 20px; color: var(--pjb-green-deep); margin: 0 0 6px; }
@@ -456,11 +462,11 @@
       </div>
       <div class="pjb-step">
         <span class="pjb-step-num">2</span>
-        <div><h3>Send it by email</h3><p>The form turns your answers into an email to us. You see every word before you send it.</p></div>
+        <div><h3>Send it to us</h3><p>Your request goes straight to the Pride and Joy team. Only the team can read it.</p></div>
       </div>
       <div class="pjb-step">
         <span class="pjb-step-num">3</span>
-        <div><h3>Your box is on its way</h3><p>We write back to confirm. To change a size or stop your boxes, reply to that email any time.</p></div>
+        <div><h3>Your box is on its way</h3><p>We write back to confirm. To change a size or stop your boxes, reply to our email any time.</p></div>
       </div>
     </div>
   </section>
@@ -475,7 +481,7 @@
     <form class="pjb-form" id="pjb-form" novalidate>
       <p class="pjb-privacy">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
-        <span>Nothing you type here is saved on this website. The button at the bottom opens an email to us with your answers filled in, and nothing is sent until you press send in your own email app.</span>
+        <span>Your request is saved on this website so we can pack and mail your box. Only the Pride and Joy team can read it. Nothing is sent until you press the button at the bottom.</span>
       </p>
 
       <fieldset class="pjb-fieldset">
@@ -599,17 +605,28 @@
         </div>
       </fieldset>
 
+      <!-- People never see this field. A filled one marks a bot. -->
+      <div class="pjb-hp" aria-hidden="true">
+        <label for="pjb-website">Leave this empty</label>
+        <input type="text" id="pjb-website" name="website" tabindex="-1" autocomplete="off">
+      </div>
+
       <div class="pjb-submitrow">
         <button class="pjb-btn pjb-btn-primary" type="submit">
-          Write my request email
+          Send my request
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z"/><path d="M4 6l8 7 8-7"/></svg>
         </button>
-        <p id="pjb-formmsg" role="status" aria-live="polite">Your email app will open with everything filled in.</p>
+        <p id="pjb-formmsg" role="status" aria-live="polite">We write back to the email you give us.</p>
+      </div>
+
+      <div class="pjb-result" id="pjb-sent" role="status" hidden>
+        <h3>Your request is in.</h3>
+        <p>Thank you. We write back to the email you gave us to confirm. To change a size or stop your boxes, reply to that email any time.</p>
       </div>
 
       <div class="pjb-result" id="pjb-result" hidden>
-        <h3>Your request is ready.</h3>
-        <p>Your email app should have opened with this filled in. If it didn&#8217;t, copy the text below and email it to <a id="pjb-maillink" href="#"></a>.</p>
+        <h3>We couldn&#8217;t save your request just now.</h3>
+        <p>Your email app should have opened with your answers filled in, so you can send them that way. If it didn&#8217;t, copy the text below and email it to <a id="pjb-maillink" href="#"></a>.</p>
         <pre id="pjb-text"></pre>
         <button class="pjb-copy" type="button" id="pjb-copy">Copy request</button>
       </div>
@@ -672,6 +689,8 @@
 (function() {
   // REQUEST EMAIL //
   var REQUEST_EMAIL = 'transpire@transwellconnects.com';
+  // Where requests are saved: the Pride and Joy Boxes plugin on this site.
+  var REQUEST_URL = '/wp-json/pride-joy/v1/requests';
 
   var root = document.querySelector('.pjb-page');
   if (!root || root._pjbInit) return;
@@ -680,6 +699,8 @@
   var form = root.querySelector('#pjb-form');
   var msg = root.querySelector('#pjb-formmsg');
   var result = root.querySelector('#pjb-result');
+  var sent = root.querySelector('#pjb-sent');
+  var submitBtn = form.querySelector('button[type="submit"]');
   var pre = root.querySelector('#pjb-text');
   var mailLink = root.querySelector('#pjb-maillink');
   mailLink.href = 'mailto:' + REQUEST_EMAIL;
@@ -710,6 +731,38 @@
 
   function val(id) { return root.querySelector(id).value.trim(); }
 
+  function joyPicks() {
+    return [].map.call(root.querySelectorAll('input[name="joy"]:checked'), function(c) { return c.value; });
+  }
+
+  function itemPicks() {
+    var items = [];
+    root.querySelectorAll('.pjb-item').forEach(function(item) {
+      if (!item.querySelector('label input').checked) return;
+      items.push({ label: item.dataset.label, detail: item.querySelector('.pjb-item-detail input').value.trim() });
+    });
+    return items;
+  }
+
+  // What the plugin saves. The app sends the same fields.
+  function requestData() {
+    return {
+      kind: root.querySelector('input[name="kind"]:checked').value === 'Subscription' ? 'subscription' : 'free',
+      name: val('#pjb-name'),
+      pronouns: val('#pjb-pronouns'),
+      email: val('#pjb-email'),
+      address: val('#pjb-address'),
+      joy: joyPicks(),
+      faves: val('#pjb-faves'),
+      items: itemPicks(),
+      plain: root.querySelector('input[name="plain"]').checked,
+      notes: val('#pjb-notes'),
+      website: root.querySelector('#pjb-website').value,
+      source: 'web'
+    };
+  }
+
+  // The same answers as an email, for when saving fails.
   function buildRequest() {
     var lines = ['Pride and Joy Box request', ''];
     lines.push('Box: ' + root.querySelector('input[name="kind"]:checked').value);
@@ -718,15 +771,12 @@
     lines.push('Email: ' + val('#pjb-email'));
     lines.push('Mailing address: ' + (val('#pjb-address') ? '\n' + val('#pjb-address') : 'I’ll send it when you write back'));
 
-    var joy = [].map.call(root.querySelectorAll('input[name="joy"]:checked'), function(c) { return c.value; });
+    var joy = joyPicks();
     lines.push('', 'What brings me joy: ' + (joy.length ? joy.join(', ') : 'Surprise me'));
     if (val('#pjb-faves')) lines.push('Favorite things: ' + val('#pjb-faves'));
 
-    var items = [];
-    root.querySelectorAll('.pjb-item').forEach(function(item) {
-      if (!item.querySelector('label input').checked) return;
-      var detail = item.querySelector('.pjb-item-detail input').value.trim();
-      items.push('- ' + item.dataset.label + (detail ? ': ' + detail : ''));
+    var items = itemPicks().map(function(item) {
+      return '- ' + item.label + (item.detail ? ': ' + item.detail : '');
     });
     lines.push('', 'Gender-affirming items:');
     lines.push(items.length ? items.join('\n') : '- None this time, just joy');
@@ -734,6 +784,19 @@
     lines.push('', 'Packaging: ' + (root.querySelector('input[name="plain"]').checked ? 'Plain outer box, please' : 'Any box is fine'));
     if (val('#pjb-notes')) lines.push('', 'Anything else:', val('#pjb-notes'));
     return lines.join('\n');
+  }
+
+  function emailInstead() {
+    var name = val('#pjb-name');
+    var body = buildRequest();
+    var kind = root.querySelector('input[name="kind"]:checked').value;
+    var subject = 'Pride and Joy Box request (' + kind.toLowerCase() + '): ' + name;
+    pre.textContent = body;
+    result.removeAttribute('hidden');
+    msg.textContent = 'We couldn’t save your request. Check your email app to send it instead.';
+    window.location.href = 'mailto:' + REQUEST_EMAIL +
+      '?subject=' + encodeURIComponent(subject) +
+      '&body=' + encodeURIComponent(body);
   }
 
   form.addEventListener('submit', function(e) {
@@ -748,15 +811,35 @@
       missing.focus();
       return;
     }
-    var body = buildRequest();
-    var kind = root.querySelector('input[name="kind"]:checked').value;
-    var subject = 'Pride and Joy Box request (' + kind.toLowerCase() + '): ' + name.value.trim();
-    pre.textContent = body;
-    result.removeAttribute('hidden');
-    msg.textContent = 'Your request is ready. Check your email app.';
-    window.location.href = 'mailto:' + REQUEST_EMAIL +
-      '?subject=' + encodeURIComponent(subject) +
-      '&body=' + encodeURIComponent(body);
+
+    submitBtn.disabled = true;
+    result.setAttribute('hidden', '');
+    sent.setAttribute('hidden', '');
+    msg.textContent = 'Sending your request…';
+
+    fetch(REQUEST_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(requestData())
+    }).then(function(response) {
+      if (response.status === 429) {
+        submitBtn.disabled = false;
+        msg.textContent = 'A lot of requests came from your network just now. Try again in an hour, or email ' + REQUEST_EMAIL + '.';
+        return;
+      }
+      if (!response.ok) throw new Error('not saved');
+      form.reset();
+      root.querySelectorAll('.pjb-item').forEach(function(item) {
+        item.classList.remove('is-on');
+        item.querySelector('.pjb-item-detail').setAttribute('hidden', '');
+      });
+      submitBtn.disabled = false;
+      sent.removeAttribute('hidden');
+      msg.textContent = 'Your request is in. We write back to confirm.';
+    }).catch(function() {
+      submitBtn.disabled = false;
+      emailInstead();
+    });
   });
 
   root.querySelector('#pjb-copy').addEventListener('click', function() {

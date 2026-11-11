@@ -12,7 +12,7 @@ The site runs on WordPress (Astra theme, Spectra blocks), which keeps pages in i
 | [pages/volunteer-hub.html](pages/volunteer-hub.html) | [Volunteer Hub](https://transwellconnects.com/services/) | A Spectra banner, then one hand-written Custom HTML block |
 | [pages/contact.html](pages/contact.html) | [Contact](https://transwellconnects.com/contact/) | Spectra blocks and a SureForms contact form |
 | [pages/listening-session-11-19-2026.html](pages/listening-session-11-19-2026.html) | [Listening Session: 11/19/2026](https://transwellconnects.com/listening-session-11-19-2026/) | Standard WordPress paragraph, heading and list blocks |
-| [pages/pride-and-joy-boxes.html](pages/pride-and-joy-boxes.html) | Pride and Joy Boxes (`/pride-and-joy-boxes/`, not yet on the site) | One Custom HTML block holding the whole file |
+| [pages/pride-and-joy-boxes.html](pages/pride-and-joy-boxes.html) | [Pride and Joy Boxes](https://transwellconnects.com/1861-2/) | One Custom HTML block holding the whole file; its request form saves through the Pride and Joy Boxes plugin |
 
 Project Tracking (`/project-tracking/`) is password-protected on the site and is not in this repo.
 
@@ -38,7 +38,7 @@ Which code goes in which block:
 
 - **Home** has four Custom HTML blocks, in this order: the hero (starts at `<div class="transpire-hero">`), the event section (`<div class="transpire-event"`), the about section (`<div class="transpire-about">`), and the drop-off network map (from the `TRANSPIRE DROP-OFF NETWORK MAP` comment to the end of the file).
 - **Volunteer Hub** has one Custom HTML block. It holds everything from the `TRANSPIRE VOLUNTEER HUB v3` comment to the end of the file. The three lines above that comment are the Spectra banner and stay out of the paste.
-- **Pride and Joy Boxes** has one Custom HTML block holding the whole file. Its request form saves nothing on the site: it opens the visitor's email app addressed to `REQUEST_EMAIL` near the top of the script. Replace the yellow `[bracketed]` placeholders (class `pjb-todo`: price, how often boxes go out, who can get one, how subscribers pay) before publishing.
+- **Pride and Joy Boxes** has one Custom HTML block holding the whole file. Its request form saves each request through the Pride and Joy Boxes plugin (below), so install the plugin before pasting this version. If a request cannot be saved, the form opens the visitor's email app addressed to `REQUEST_EMAIL` near the top of the script instead. Replace the yellow `[bracketed]` placeholders (class `pjb-todo`: price, how often boxes go out, who can get one, how subscribers pay) when those are decided.
 
 ## Transpire Feedback plugin
 
@@ -65,3 +65,15 @@ Results live in two database tables, `wp_transpire_reactions` and `wp_transpire_
 ### Settings
 
 **Transpire Feedback → Settings** holds the session name, its start and end times and timezone, the list of reaction buttons, the feedback questions, and test mode. Test mode opens both widgets before the session so they can be tried; whatever is sent then is kept apart as test data and can be deleted from the Results screen.
+
+## Pride and Joy Boxes plugin
+
+[plugins/pride-joy-boxes/](plugins/pride-joy-boxes/) is a WordPress plugin that keeps Pride and Joy Box requests. Like Transpire Feedback, these files are the plugin.
+
+The request form on the [Pride and Joy Boxes](https://transwellconnects.com/1861-2/) page and the Pride & Joy tab in the TransWell app both send to it (`POST /wp-json/pride-joy/v1/requests`), so every request lands in one list whichever way it was made.
+
+Organizers see the list in WP Admin under **Pride & Joy Boxes**: who asked, where to send the box, what they asked for, and whether it came from the website or the app. Each request has a status (New, Wrote back, Box sent, Closed) and a Delete link, and the list downloads as a CSV.
+
+Each new request sends a short notice to `transpire@transwellconnects.com`. The notice says only that a request arrived and which kind of box; names, addresses and sizes stay in WP Admin. No IP addresses or browser details are stored with a request.
+
+Install or update it the same way as Transpire Feedback: zip the `pride-joy-boxes` folder and upload it under Plugins → Add Plugin → Upload Plugin.

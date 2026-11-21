@@ -8,7 +8,7 @@ The site runs on WordPress (Astra theme, Spectra blocks), which keeps pages in i
 
 | File | Live page | How the page is built |
 | --- | --- | --- |
-| [pages/home.html](pages/home.html) | [Home](https://transwellconnects.com/) | Hand-written HTML, CSS and JavaScript in four Custom HTML blocks |
+| [pages/home.html](pages/home.html) | [Home](https://transwellconnects.com/) | Hand-written HTML and CSS in one Custom HTML block |
 | [pages/volunteer-hub.html](pages/volunteer-hub.html) | [Volunteer Hub](https://transwellconnects.com/services/) | A Spectra banner, then one hand-written Custom HTML block |
 | [pages/contact.html](pages/contact.html) | [Contact](https://transwellconnects.com/contact/) | Spectra blocks and a SureForms contact form |
 | [pages/listening-session-11-19-2026.html](pages/listening-session-11-19-2026.html) | [Listening Session: 11/19/2026](https://transwellconnects.com/listening-session-11-19-2026/) | Standard WordPress paragraph, heading and list blocks |
@@ -36,7 +36,7 @@ The other three were saved on 2026-10-10 from what WordPress sends to visitors, 
 
 Which code goes in which block:
 
-- **Home** has four Custom HTML blocks, in this order: the hero (starts at `<div class="transpire-hero">`), the event section (`<div class="transpire-event"`), the about section (`<div class="transpire-about">`), and the drop-off network map (from the `TRANSPIRE DROP-OFF NETWORK MAP` comment to the end of the file).
+- **Home** has one Custom HTML block holding the whole file: what Transpire is, who is part of it, and that it is a project of All People's Justice Center. (Until November 2026 Home had four blocks about the June 2026 resource market: a hero, the event dates, an about section and the drop-off map. When switching to this version, delete all four and add one Custom HTML block.)
 - **Volunteer Hub** has one Custom HTML block. It holds everything from the `TRANSPIRE VOLUNTEER HUB v3` comment to the end of the file. The three lines above that comment are the Spectra banner and stay out of the paste.
 - **Pride and Joy Boxes** has one Custom HTML block holding the whole file. Its request form saves each request through the Pride and Joy Boxes plugin (below), so install the plugin before pasting this version. If a request cannot be saved, the form opens the visitor's email app addressed to `REQUEST_EMAIL` near the top of the script instead. Replace the yellow `[bracketed]` placeholders (class `pjb-todo`: price, how often boxes go out, who can get one, how subscribers pay) when those are decided.
 

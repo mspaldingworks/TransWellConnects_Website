@@ -175,6 +175,56 @@
 .tspr-fb .tspr-fb-tally { min-height: 20px; margin: 0; font-size: 13px; color: var(--tspr-fb-muted); }
 .tspr-fb a.tspr-fb-link { color: var(--tspr-fb-green-deep); font-weight: 700; text-decoration: underline; }
 
+/* The room's reactions over time */
+.tspr-fb .tspr-fb-chart {
+  margin: 16px 0 0;
+  padding: 14px 14px 10px;
+  background: #fff;
+  border: 1px solid var(--tspr-fb-line);
+  border-radius: 10px;
+}
+.tspr-fb .tspr-fb-chart[hidden] { display: none; }
+.tspr-fb .tspr-fb-chart-title { margin: 0; font-size: 15px; font-weight: 700; color: var(--tspr-fb-green-deep); }
+.tspr-fb .tspr-fb-chart-sub { margin: 0 0 10px; font-size: 13px; color: var(--tspr-fb-muted); }
+.tspr-fb .tspr-fb-chart-rows { position: relative; touch-action: pan-y; }
+.tspr-fb .tspr-fb-chart-row {
+  display: grid;
+  grid-template-columns: 4.6em minmax(0, 1fr);
+  align-items: end;
+  gap: 8px;
+  padding: 3px 0;
+}
+.tspr-fb .tspr-fb-chart-row.is-all { margin-bottom: 6px; padding-bottom: 9px; border-bottom: 1px solid var(--tspr-fb-line); }
+.tspr-fb .tspr-fb-chart-name { display: flex; align-items: baseline; justify-content: space-between; gap: 4px; line-height: 1.1; }
+.tspr-fb .tspr-fb-chart-mark { font-size: 18px; }
+.tspr-fb .tspr-fb-chart-row.is-all .tspr-fb-chart-mark { font-size: 13px; font-weight: 700; color: var(--tspr-fb-soft); }
+.tspr-fb .tspr-fb-chart-total { font-size: 13px; font-weight: 700; color: var(--tspr-fb-soft); font-variant-numeric: tabular-nums; }
+.tspr-fb svg.tspr-fb-plot {
+  display: block;
+  width: 100%;
+  height: 26px;
+  border-bottom: 1px solid #B9C4BF;
+  overflow: visible;
+}
+.tspr-fb .tspr-fb-chart-row.is-all svg.tspr-fb-plot { height: 44px; }
+.tspr-fb svg.tspr-fb-plot rect { fill: var(--tspr-fb-green); }
+.tspr-fb .tspr-fb-chart-row.is-all svg.tspr-fb-plot rect { fill: var(--tspr-fb-green-deep); }
+.tspr-fb .tspr-fb-chart-ends { display: flex; justify-content: space-between; font-size: 12px; color: var(--tspr-fb-muted); }
+.tspr-fb .tspr-fb-chart-band {
+  position: absolute;
+  top: 0;
+  bottom: 22px;
+  background: rgba(194, 55, 107, 0.12);
+  border-left: 1px solid rgba(194, 55, 107, 0.45);
+  pointer-events: none;
+}
+.tspr-fb .tspr-fb-chart-band[hidden] { display: none; }
+.tspr-fb .tspr-fb-chart-readout { min-height: 20px; margin: 6px 0 0; font-size: 13px; color: var(--tspr-fb-soft); font-variant-numeric: tabular-nums; }
+
+@media (forced-colors: active) {
+  .tspr-fb svg.tspr-fb-plot rect { fill: CanvasText; }
+}
+
 /* Feedback form */
 .tspr-fb .tspr-fb-field { margin: 0 0 18px; padding: 0; border: 0; min-width: 0; }
 .tspr-fb .tspr-fb-q {

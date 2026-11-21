@@ -6,20 +6,28 @@
 
   The whole file goes in ONE Custom HTML block on its own page.
 
-  The request form sends each request to the Pride and Joy Boxes
-  plugin (plugins/pride-joy-boxes), which saves it for the team
-  under "Pride & Joy Boxes" in WP Admin. The TransWell app sends
-  to the same place, so both land in one list. If the request
-  cannot be saved (the plugin is off, or the visitor is offline),
-  the page falls back to an email addressed to REQUEST_EMAIL
-  below, with the same answers filled in and a Copy button.
+  The three forms (request a box, offer to help, how was your box?)
+  send to the Pride and Joy Boxes plugin (plugins/pride-joy-boxes,
+  version 1.1.0 or later), which saves them for the team under
+  "Pride & Joy Boxes" in WP Admin. The TransWell app sends to the
+  same place, so everything lands in one tracker. If saving fails
+  (the plugin is off, or the visitor is offline), each form falls
+  back to an email addressed to REQUEST_EMAIL below, with the same
+  answers filled in.
+
+  Link people to a section with #pjb-request, #pjb-help,
+  #pjb-offer or #pjb-feedback (e.g. in a thank-you email).
 
   PLACEHOLDERS: the [bracketed] text with a yellow highlight
   (class "pjb-todo") is still to be decided: price, how often
   boxes go out, who can get one, how subscribers pay. Search for
   pjb-todo and replace each one, span and all, before publishing.
 
+  The circle photo at the top is in the Media Library as
+  Pride-Joy-Craft-Gift-Box.png; see // BOX PHOTO // below.
+
   Editable blocks:
+    // BOX PHOTO //       — the photo's Media Library address
     // REQUEST EMAIL //   — where requests go if saving fails
     // EDIT JOY PICKS //  — the art and sparkle options (HTML)
     // EDIT ITEMS //      — the gender-affirming options (HTML)
@@ -64,11 +72,27 @@
     @media (max-width: 600px) { .pjb-page { padding: 40px 16px 64px; } }
 
     /* ================ HERO ================ */
+    /* The words and the photo side by side, then the box card across the full width. */
     .pjb-hero {
-      display: grid; grid-template-columns: 1.4fr 1fr; gap: 56px; align-items: center;
+      display: grid; grid-template-columns: 1.4fr 1fr; gap: 48px 56px; align-items: center;
       margin-bottom: 64px; padding-bottom: 48px; border-bottom: 2px solid var(--pjb-green);
     }
-    @media (max-width: 860px) { .pjb-hero { grid-template-columns: 1fr; gap: 36px; } }
+    .pjb-hero .pjb-boxcard { grid-column: 1 / -1; }
+    @media (max-width: 860px) {
+      .pjb-hero { grid-template-columns: 1fr; gap: 36px; }
+      /* On a phone the photo comes first, at the very top. */
+      .pjb-hero .pjb-photo { order: -1; }
+    }
+
+    /* The box photo, cut into a circle */
+    .pjb-photo { margin: 0; justify-self: center; width: min(100%, 340px); text-align: center; }
+    .pjb-photo img {
+      display: block; width: 100%; height: auto; aspect-ratio: 1 / 1; object-fit: cover; object-position: 55% 50%;
+      border-radius: 50%; border: 2px solid var(--pjb-green); box-shadow: 6px 6px 0 var(--pjb-pink-deep);
+      background: var(--pjb-mint-deep);
+    }
+    .pjb-photo figcaption { margin-top: 14px; font-size: 12px; color: var(--pjb-muted); font-style: italic; }
+    @media (max-width: 860px) { .pjb-photo { width: min(78%, 300px); } }
 
     .pjb-eyebrow {
       font-size: 12px; letter-spacing: 0.2em; text-transform: uppercase;
@@ -125,18 +149,27 @@
         radial-gradient(circle, var(--pjb-pink) 0 2px, transparent 3px) 0 24px / 28px 26px;
       opacity: 0.85;
     }
-    .pjb-boxcard-list { list-style: none; padding: 0; margin: 0; }
+    /* Two columns of two; one column on a phone. */
+    .pjb-boxcard-list { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: 1fr 1fr; column-gap: 40px; }
     .pjb-boxcard-list li {
-      display: grid; grid-template-columns: 34px 1fr; gap: 12px; align-items: start;
-      padding: 12px 0; border-top: 1px dashed var(--pjb-line);
+      display: grid; grid-template-columns: 52px 1fr; gap: 18px; align-items: center;
+      padding: 18px 0; border-top: 1px dashed var(--pjb-line);
     }
-    .pjb-boxcard-list li:first-child { border-top: none; padding-top: 0; }
+    .pjb-boxcard-list li:nth-child(-n+2) { border-top: none; padding-top: 0; }
     .pjb-boxcard-icon {
-      width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
-      font-size: 16px; color: var(--pjb-green-deep); background: var(--pjb-mint-deep);
+      width: 52px; height: 52px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-size: 24px; color: var(--pjb-green-deep); background: var(--pjb-mint-deep);
     }
-    .pjb-boxcard-list strong { display: block; font-family: 'Fraunces', serif; font-size: 16px; color: var(--pjb-green-deep); line-height: 1.25; }
-    .pjb-boxcard-list span { font-size: 13px; color: var(--pjb-ink-soft); line-height: 1.5; }
+    .pjb-boxcard-list strong { display: block; font-family: 'Fraunces', serif; font-size: 21px; color: var(--pjb-green-deep); line-height: 1.25; margin-bottom: 2px; }
+    .pjb-boxcard-list div > span { font-size: 15px; color: var(--pjb-ink-soft); line-height: 1.5; }
+    @media (max-width: 640px) {
+      .pjb-boxcard-list { grid-template-columns: 1fr; }
+      .pjb-boxcard-list li { grid-template-columns: 42px 1fr; gap: 14px; padding: 14px 0; }
+      .pjb-boxcard-list li:nth-child(2) { border-top: 1px dashed var(--pjb-line); padding-top: 14px; }
+      .pjb-boxcard-icon { width: 42px; height: 42px; font-size: 19px; }
+      .pjb-boxcard-list strong { font-size: 18px; }
+      .pjb-boxcard-list div > span { font-size: 14px; }
+    }
     .pjb-boxcard-list li.on-request .pjb-boxcard-icon { background: var(--pjb-pink); color: #fff; }
 
     /* ================ SECTION SCAFFOLD ================ */
@@ -276,6 +309,7 @@
     .pjb-submitrow { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; padding-top: 6px; }
     .pjb-submitrow p { font-size: 12.5px; color: var(--pjb-muted); margin: 0; max-width: 420px; }
 
+    .pjb-page [hidden] { display: none !important; }
     .pjb-btn[disabled] { opacity: .6; cursor: default; }
     .pjb-hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
 
@@ -353,6 +387,15 @@
         <a class="pjb-btn pjb-btn-secondary" href="#pjb-help">Help fill a box</a>
       </div>
     </div>
+
+    <!-- // BOX PHOTO // — the Media Library address of the photo; if WordPress
+         renamed the upload (e.g. added -1), copy its File URL into src below -->
+    <figure class="pjb-photo">
+      <img src="https://transwellconnects.com/wp-content/uploads/2026/11/Pride-Joy-Craft-Gift-Box.png"
+           alt="A hand-painted cardboard box lettered Pride and Joy, open to show pink and blue tissue paper, art prints, a coloring card, a sticker sheet, a jar of glitter, colored pencils and a lavender envelope."
+           width="340" height="340" loading="eager">
+      <figcaption>What a box might look like</figcaption>
+    </figure>
 
     <aside class="pjb-boxcard" aria-label="What comes in a box">
       <ul class="pjb-boxcard-list">
@@ -640,35 +683,149 @@
       <h2 class="pjb-section-title">Joy is a group project.</h2>
     </header>
     <p class="pjb-section-intro">
-      Pride and Joy Boxes are filled by community. Write to us before you send anything, so we can tell you
-      what is needed most and where to send it.
+      Pride and Joy Boxes are filled by community. Tell us what you would like to give before you send anything,
+      so we can write back with what is needed most and where to send it.
     </p>
     <div class="pjb-helps">
       <div class="pjb-help art">
         <h3>Make art for the boxes</h3>
         <p>Artists, crafters and zine makers: prints, stickers, postcards and small handmade pieces are the heart of every box.</p>
-        <a class="pjb-help-link" href="mailto:transpire@transwellconnects.com?subject=Pride%20and%20Joy%20Boxes%3A%20I%20want%20to%20make%20art">
+        <a class="pjb-help-link" href="#pjb-offer" data-give="art">
           Offer your art
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 13l7 7 7-7"/></svg>
         </a>
       </div>
       <div class="pjb-help items">
         <h3>Give items</h3>
         <p>Affirming gear in a range of sizes, unopened makeup and skincare, craft supplies and biodegradable glitter.</p>
-        <a class="pjb-help-link" href="mailto:transpire@transwellconnects.com?subject=Pride%20and%20Joy%20Boxes%3A%20I%20want%20to%20give%20items">
-          Ask what&#8217;s needed
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+        <a class="pjb-help-link" href="#pjb-offer" data-give="items">
+          Offer items
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 13l7 7 7-7"/></svg>
         </a>
       </div>
       <div class="pjb-help notes">
         <h3>Write notes</h3>
         <p>A few kind, handwritten words go in every box. Trans elders, friends, family and allies are all welcome to write.</p>
-        <a class="pjb-help-link" href="mailto:transpire@transwellconnects.com?subject=Pride%20and%20Joy%20Boxes%3A%20I%20want%20to%20write%20notes">
-          Write a note
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+        <a class="pjb-help-link" href="#pjb-offer" data-give="notes">
+          Offer to write
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 13l7 7 7-7"/></svg>
         </a>
       </div>
     </div>
+
+    <form class="pjb-form" id="pjb-offer" novalidate style="margin-top:22px">
+      <fieldset class="pjb-fieldset">
+        <legend>Offer to help</legend>
+        <p class="pjb-fieldset-hint">Tick everything you would like to give. We write back with what&#8217;s needed and where to send it.</p>
+        <div class="pjb-chips" role="group" aria-label="What you would like to give">
+          <label class="pjb-chip"><input type="checkbox" name="give" value="art"><span>Art</span></label>
+          <label class="pjb-chip"><input type="checkbox" name="give" value="items"><span>Items</span></label>
+          <label class="pjb-chip"><input type="checkbox" name="give" value="notes"><span>Handwritten notes</span></label>
+          <label class="pjb-chip"><input type="checkbox" name="give" value="money"><span>Money</span></label>
+          <label class="pjb-chip"><input type="checkbox" name="give" value="time"><span>Time (packing, volunteering)</span></label>
+        </div>
+      </fieldset>
+      <fieldset class="pjb-fieldset">
+        <legend>About you</legend>
+        <div class="pjb-grid2">
+          <div class="pjb-field">
+            <label for="pjb-o-name">Your name</label>
+            <input type="text" id="pjb-o-name" autocomplete="name" required>
+          </div>
+          <div class="pjb-field">
+            <label for="pjb-o-pronouns">Pronouns <span class="opt">(optional)</span></label>
+            <input type="text" id="pjb-o-pronouns">
+          </div>
+          <div class="pjb-field full">
+            <label for="pjb-o-email">Email we can reply to</label>
+            <input type="email" id="pjb-o-email" autocomplete="email" required>
+          </div>
+          <div class="pjb-field full">
+            <label for="pjb-o-details">Tell us more <span class="opt">(optional)</span></label>
+            <textarea id="pjb-o-details" rows="3" placeholder="What you make, what you have, sizes, how much, when"></textarea>
+          </div>
+        </div>
+      </fieldset>
+      <div class="pjb-hp" aria-hidden="true">
+        <label for="pjb-o-website">Leave this empty</label>
+        <input type="text" id="pjb-o-website" tabindex="-1" autocomplete="off">
+      </div>
+      <div class="pjb-submitrow">
+        <button class="pjb-btn pjb-btn-primary" type="submit">Send my offer</button>
+        <p id="pjb-o-msg" role="status" aria-live="polite">Only the Pride and Joy team reads it.</p>
+      </div>
+      <div class="pjb-result" id="pjb-o-sent" role="status" hidden>
+        <h3>Thank you. Your offer is in.</h3>
+        <p>We write back to the email you gave us with what&#8217;s needed most and where to send it.</p>
+      </div>
+    </form>
+  </section>
+
+  <!-- ================ FEEDBACK ================ -->
+  <section class="pjb-section" id="pjb-feedback">
+    <header class="pjb-section-head">
+      <span class="pjb-section-num">06 / How was your box?</span>
+      <h2 class="pjb-section-title">Tell us what landed.</h2>
+    </header>
+    <p class="pjb-section-intro">Got a box? Your words help us pack the next one. Every question is optional.</p>
+
+    <form class="pjb-form" id="pjb-fb" novalidate>
+      <fieldset class="pjb-fieldset">
+        <legend>How much did it bring you joy?</legend>
+        <div class="pjb-chips" role="radiogroup" aria-label="Rating from 1 to 5">
+          <label class="pjb-chip"><input type="radio" name="rating" value="1"><span>1</span></label>
+          <label class="pjb-chip"><input type="radio" name="rating" value="2"><span>2</span></label>
+          <label class="pjb-chip"><input type="radio" name="rating" value="3"><span>3</span></label>
+          <label class="pjb-chip"><input type="radio" name="rating" value="4"><span>4</span></label>
+          <label class="pjb-chip"><input type="radio" name="rating" value="5"><span>5, so much</span></label>
+        </div>
+      </fieldset>
+      <fieldset class="pjb-fieldset">
+        <legend>Your words</legend>
+        <div class="pjb-grid2">
+          <div class="pjb-field full">
+            <label for="pjb-f-loved">What did you love?</label>
+            <textarea id="pjb-f-loved" rows="3"></textarea>
+          </div>
+          <div class="pjb-field full">
+            <label for="pjb-f-wish">What would make the next box better?</label>
+            <textarea id="pjb-f-wish" rows="3"></textarea>
+          </div>
+          <div class="pjb-field">
+            <label for="pjb-f-name">Name <span class="opt">(optional)</span></label>
+            <input type="text" id="pjb-f-name" autocomplete="nickname">
+          </div>
+          <div class="pjb-field">
+            <label for="pjb-f-email">Email <span class="opt">(optional, links this to your box)</span></label>
+            <input type="email" id="pjb-f-email" autocomplete="email">
+          </div>
+        </div>
+      </fieldset>
+      <fieldset class="pjb-fieldset">
+        <label class="pjb-check" style="margin-bottom:12px">
+          <input type="checkbox" id="pjb-f-quote">
+          <span>You can share my words
+            <small>We may quote what you wrote on this page or in our posts. Never your email.</small>
+          </span>
+        </label>
+        <div class="pjb-field" id="pjb-f-credit-wrap" hidden>
+          <label for="pjb-f-credit">Credit me as <span class="opt">(leave empty to stay anonymous)</span></label>
+          <input type="text" id="pjb-f-credit" placeholder="e.g. J., Louisville">
+        </div>
+      </fieldset>
+      <div class="pjb-hp" aria-hidden="true">
+        <label for="pjb-f-website">Leave this empty</label>
+        <input type="text" id="pjb-f-website" tabindex="-1" autocomplete="off">
+      </div>
+      <div class="pjb-submitrow">
+        <button class="pjb-btn pjb-btn-primary" type="submit">Send feedback</button>
+        <p id="pjb-f-msg" role="status" aria-live="polite">Only the Pride and Joy team reads it.</p>
+      </div>
+      <div class="pjb-result" id="pjb-f-sent" role="status" hidden>
+        <h3>Thank you for telling us.</h3>
+        <p>It goes straight to the people who pack the boxes.</p>
+      </div>
+    </form>
   </section>
 
   <!-- ================ FINAL CTA ================ -->
@@ -840,6 +997,134 @@
       submitBtn.disabled = false;
       emailInstead();
     });
+  });
+
+  // ---- Offer to help and feedback: the same plugin, two more routes ----
+
+  // Posts JSON to the plugin. Resolves 'sent', 'limit' or 'failed'.
+  function send(path, data) {
+    return fetch(path, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    }).then(function(response) {
+      if (response.status === 429) return 'limit';
+      return response.ok ? 'sent' : 'failed';
+    }, function() { return 'failed'; });
+  }
+
+  // When saving fails, open an email with the same words instead.
+  function mailInstead(subject, lines) {
+    window.location.href = 'mailto:' + REQUEST_EMAIL +
+      '?subject=' + encodeURIComponent(subject) +
+      '&body=' + encodeURIComponent(lines.join('\n'));
+  }
+
+  function wireForm(formEl, opts) {
+    var button = formEl.querySelector('button[type="submit"]');
+    var note = formEl.querySelector(opts.msg);
+    var done = formEl.querySelector(opts.sent);
+    formEl.addEventListener('submit', function(e) {
+      e.preventDefault();
+      var problem = opts.check();
+      if (problem) { note.textContent = problem; return; }
+      button.disabled = true;
+      done.setAttribute('hidden', '');
+      note.textContent = 'Sending…';
+      send(opts.path, opts.data()).then(function(result) {
+        button.disabled = false;
+        if (result === 'sent') {
+          formEl.reset();
+          if (opts.after) opts.after();
+          done.removeAttribute('hidden');
+          note.textContent = 'Sent. Thank you.';
+        } else if (result === 'limit') {
+          note.textContent = 'A lot came from your network just now. Try again in an hour, or email ' + REQUEST_EMAIL + '.';
+        } else {
+          note.textContent = 'We couldn’t save it. Your email app should open with your words filled in.';
+          mailInstead(opts.subject, opts.lines());
+        }
+      });
+    });
+  }
+
+  var offer = root.querySelector('#pjb-offer');
+  function gives() {
+    return [].map.call(offer.querySelectorAll('input[name="give"]:checked'), function(c) { return c.value; });
+  }
+  // "Offer your art" and friends tick their box in the form.
+  root.querySelectorAll('[data-give]').forEach(function(link) {
+    link.addEventListener('click', function() {
+      offer.querySelector('input[name="give"][value="' + link.dataset.give + '"]').checked = true;
+    });
+  });
+  wireForm(offer, {
+    path: '/wp-json/pride-joy/v1/offers',
+    msg: '#pjb-o-msg',
+    sent: '#pjb-o-sent',
+    subject: 'Pride and Joy Boxes: I want to help',
+    check: function() {
+      if (!gives().length) return 'Tick what you would like to give, then try again.';
+      if (!val('#pjb-o-name')) { root.querySelector('#pjb-o-name').focus(); return 'Add your name, then try again.'; }
+      var email = root.querySelector('#pjb-o-email');
+      if (!email.value.trim() || !email.checkValidity()) { email.focus(); return 'Add an email we can reply to, then try again.'; }
+      return '';
+    },
+    data: function() {
+      return {
+        gives: gives(),
+        name: val('#pjb-o-name'),
+        pronouns: val('#pjb-o-pronouns'),
+        email: val('#pjb-o-email'),
+        details: val('#pjb-o-details'),
+        website: root.querySelector('#pjb-o-website').value,
+        source: 'web'
+      };
+    },
+    lines: function() {
+      return ['I want to help fill Pride and Joy Boxes.', '', 'I can give: ' + gives().join(', '),
+        'Name: ' + val('#pjb-o-name'), 'Email: ' + val('#pjb-o-email'), '', val('#pjb-o-details')];
+    }
+  });
+
+  var fb = root.querySelector('#pjb-fb');
+  var quote = root.querySelector('#pjb-f-quote');
+  var creditWrap = root.querySelector('#pjb-f-credit-wrap');
+  quote.addEventListener('change', function() { creditWrap.hidden = !quote.checked; });
+  function rating() {
+    var picked = fb.querySelector('input[name="rating"]:checked');
+    return picked ? Number(picked.value) : null;
+  }
+  wireForm(fb, {
+    path: '/wp-json/pride-joy/v1/feedback',
+    msg: '#pjb-f-msg',
+    sent: '#pjb-f-sent',
+    subject: 'Pride and Joy Box feedback',
+    after: function() { creditWrap.hidden = true; },
+    check: function() {
+      if (!rating() && !val('#pjb-f-loved') && !val('#pjb-f-wish')) return 'Pick a number or write a few words, then try again.';
+      var email = root.querySelector('#pjb-f-email');
+      if (email.value.trim() && !email.checkValidity()) { email.focus(); return 'That email doesn’t look right. Fix it or leave it empty.'; }
+      return '';
+    },
+    data: function() {
+      return {
+        rating: rating(),
+        loved: val('#pjb-f-loved'),
+        wish: val('#pjb-f-wish'),
+        name: val('#pjb-f-name'),
+        email: val('#pjb-f-email'),
+        quote_ok: quote.checked,
+        credit_as: val('#pjb-f-credit'),
+        website: root.querySelector('#pjb-f-website').value,
+        source: 'web'
+      };
+    },
+    lines: function() {
+      return ['Rating: ' + (rating() || 'none'), 'What I loved: ' + val('#pjb-f-loved'),
+        'What would make it better: ' + val('#pjb-f-wish'),
+        'You can quote me: ' + (quote.checked ? 'yes, as ' + (val('#pjb-f-credit') || 'anonymous') : 'no')];
+    }
   });
 
   root.querySelector('#pjb-copy').addEventListener('click', function() {

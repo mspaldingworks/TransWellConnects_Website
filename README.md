@@ -12,7 +12,7 @@ The site runs on WordPress (Astra theme, Spectra blocks), which keeps pages in i
 | [pages/volunteer-hub.html](pages/volunteer-hub.html) | [Volunteer Hub](https://transwellconnects.com/services/) | A Spectra banner, then one hand-written Custom HTML block |
 | [pages/contact.html](pages/contact.html) | [Contact](https://transwellconnects.com/contact/) | Spectra blocks and a SureForms contact form |
 | [pages/listening-session-11-19-2026.html](pages/listening-session-11-19-2026.html) | [Listening Session: 11/19/2026](https://transwellconnects.com/listening-session-11-19-2026/) | Standard WordPress paragraph, heading and list blocks |
-| [pages/pride-and-joy-boxes.html](pages/pride-and-joy-boxes.html) | [Pride and Joy Boxes](https://transwellconnects.com/1861-2/) | One Custom HTML block holding the whole file; its request form saves through the Pride and Joy Boxes plugin |
+| [pages/pride-and-joy-boxes.html](pages/pride-and-joy-boxes.html) | [Pride and Joy Boxes](https://transwellconnects.com/1861-2/) | One Custom HTML block holding the whole file; its three forms save through the Pride and Joy Boxes plugin |
 
 Project Tracking (`/project-tracking/`) is password-protected on the site and is not in this repo.
 
@@ -38,7 +38,7 @@ Which code goes in which block:
 
 - **Home** has four Custom HTML blocks, in this order: the hero (starts at `<div class="transpire-hero">`), the event section (`<div class="transpire-event"`), the about section (`<div class="transpire-about">`), and the drop-off network map (from the `TRANSPIRE DROP-OFF NETWORK MAP` comment to the end of the file).
 - **Volunteer Hub** has one Custom HTML block. It holds everything from the `TRANSPIRE VOLUNTEER HUB v3` comment to the end of the file. The three lines above that comment are the Spectra banner and stay out of the paste.
-- **Pride and Joy Boxes** has one Custom HTML block holding the whole file. Its request form saves each request through the Pride and Joy Boxes plugin (below), so install the plugin before pasting this version. If a request cannot be saved, the form opens the visitor's email app addressed to `REQUEST_EMAIL` near the top of the script instead. Replace the yellow `[bracketed]` placeholders (class `pjb-todo`: price, how often boxes go out, who can get one, how subscribers pay) when those are decided.
+- **Pride and Joy Boxes** has one Custom HTML block holding the whole file. Its three forms (request a box, offer to help, how was your box?) save through the Pride and Joy Boxes plugin (below), so install plugin 1.1.0 before pasting this version. If something cannot be saved, the form opens the visitor's email app addressed to `REQUEST_EMAIL` near the top of the script instead. Replace the yellow `[bracketed]` placeholders (class `pjb-todo`: price, how often boxes go out, who can get one, how subscribers pay) when those are decided.
 
 ## Transpire Feedback plugin
 
@@ -68,12 +68,35 @@ Results live in two database tables, `wp_transpire_reactions` and `wp_transpire_
 
 ## Pride and Joy Boxes plugin
 
-[plugins/pride-joy-boxes/](plugins/pride-joy-boxes/) is a WordPress plugin that keeps Pride and Joy Box requests. Like Transpire Feedback, these files are the plugin.
+[plugins/pride-joy-boxes/](plugins/pride-joy-boxes/) is a WordPress plugin that tracks Pride and Joy Boxes: who asks for boxes, who gives, and everything sent back and forth. Like Transpire Feedback, these files are the plugin.
 
-The request form on the [Pride and Joy Boxes](https://transwellconnects.com/1861-2/) page and the Pride & Joy tab in the TransWell app both send to it (`POST /wp-json/pride-joy/v1/requests`), so every request lands in one list whichever way it was made.
+The [Pride and Joy Boxes](https://transwellconnects.com/1861-2/) page and the Pride & Joy tab in the TransWell app both send to it, so everything lands in one tracker whichever way it was sent:
 
-Organizers see the list in WP Admin under **Pride & Joy Boxes**: who asked, where to send the box, what they asked for, and whether it came from the website or the app. Each request has a status (New, Wrote back, Box sent, Closed) and a Delete link, and the list downloads as a CSV.
+| Form | Route | Saved as |
+|---|---|---|
+| Request a box | `POST /wp-json/pride-joy/v1/requests` | a request |
+| Offer to help (art, items, notes, money, time) | `POST /wp-json/pride-joy/v1/offers` | one donation per thing offered, marked Offered |
+| How was your box? | `POST /wp-json/pride-joy/v1/feedback` | feedback, linked to the person and their latest request when they give an email |
 
-Each new request sends a short notice to `transpire@transwellconnects.com`. The notice says only that a request arrived and which kind of box; names, addresses and sizes stay in WP Admin. No IP addresses or browser details are stored with a request.
+### In WP Admin
 
-Install or update it the same way as Transpire Feedback: zip the `pride-joy-boxes` folder and upload it under Plugins → Add Plugin → Upload Plugin.
+Everything is under **Pride & Joy Boxes**, for site administrators:
+
+- **Requests**: what each person asked for. Change the status, or record a box as sent with what went in, the cost and tracking.
+- **People**: one record per person, matched by email, with their roles (asked for a box, donor, artist, note writer, volunteer). A person's page shows all their requests, boxes, donations, receipts, thank-yous, feedback and an activity log, and has **Forget this person** for when someone asks to be removed.
+- **Donations**: gifts of money, art, items, notes or time, entered by the team or offered through the forms. Marking one Received lets you write its receipt.
+- **Feedback**: what people said about their box, with whether they agreed to be quoted and how to credit them.
+- **Receipts**: numbered PJB-year-n. Each keeps the exact text it was written with. Email or print it, then mark it sent.
+- **Receipt template**: the wording for new receipts. Saving a change starts a new version; receipts already written keep theirs. The default says the gift is not tax-deductible, because Transpire is not a 501(c)(3). Change it when that changes (or when a fiscal sponsor issues receipts).
+
+**Download Excel** on every screen gives a workbook of everything, built fresh each time: a Read me sheet, then People, Requests, Shipments, Donations, Receipts, Thank-yous, Feedback and Activity. Every row has a stable ID (C-0001 for people, R- requests, S- shipments, D- donations, T- thank-yous, F- feedback, A- activity), and the other sheets point to people by `person_id`. To move to a CRM later, import People first keeping the C- ID as an external ID, then the rest. The download needs the PHP zip extension, which Hostinger turns on by default.
+
+### Notices and privacy
+
+Each new request, offer or feedback sends a short notice to `transpire@transwellconnects.com`. It says only what arrived; names, addresses and sizes stay in WP Admin. No IP addresses or browser details are stored. The public routes refuse more than 20 posts an hour from one network, and quietly drop posts that fill a hidden field people never see.
+
+### Installing or updating it
+
+Zip the `pride-joy-boxes` folder and upload it under Plugins → Add Plugin → Upload Plugin, choosing to replace the current version when updating. Upload through that screen, not a file manager: it unpacks every file together. Updating from 1.0 keeps every request and gives each one a person, matched by email.
+
+The data lives in the plugin's own tables (`wp_pjb_people`, `wp_pjb_requests`, `wp_pjb_shipments`, `wp_pjb_donations`, `wp_pjb_receipts`, `wp_pjb_thanks`, `wp_pjb_feedback`, `wp_pjb_activity`, with the site's own prefix). Deactivating or deleting the plugin leaves them in place.
